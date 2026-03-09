@@ -87,6 +87,41 @@ python manage.py runserver
 ```
 Access the application at `http://localhost:8000/`.
 
+## End-to-End (E2E) Testing Scenarios
+
+Validate the full system integration by following these core workflows:
+
+### 1. Lead Capture & AI Scoring
+1. Navigate to a **Wagtail Landing Page** (e.g., `/marketing/demo-page/`).
+2. Submit the lead capture form with a new email.
+3. **Verify**: A new `Contact` is created in the CRM.
+4. **Verify**: The `AIService` automatically runs, assigns a lead score, and generates a personalized follow-up in the interaction log.
+
+### 2. Marketing Campaign Execution
+1. Create a `Mailing List` and add the new contact.
+2. Design an `Email Campaign` using the Wagtail StreamField editor.
+3. Schedule/Send the campaign.
+4. **Verify**: Interaction records are created for all contacts in the list.
+
+### 3. Sales Pipeline & ERP Lifecycle
+1. Convert a `Contact` into a `Deal` within a sales `Pipeline`.
+2. Move the `Deal` to the "Won" stage.
+3. Generate an `Invoice` for the deal with at least two `Line Items`.
+4. Record a `Payment` against the invoice.
+5. **Verify**: Invoice status changes to "Paid" and a `StockLevel` deduction is triggered for associated products.
+
+### 4. Communication & Audit
+1. Run `python manage.py sync_email`.
+2. **Verify**: External emails from configured `EmailAccounts` appear as `Interactions` under the matching `Contact`.
+3. Modify a `Contact` record.
+4. **Verify**: An entry is created in the `AuditLog` (visible in Django Admin) detailing the fields changed.
+
+### 5. API Integration
+1. Authenticate via the REST API (Token or Session).
+2. Perform a `GET` request to `/api/contacts/`.
+3. Perform a `POST` request to `/api/invoices/` to create a new billing record.
+4. **Verify**: JSON responses return correct model data.
+
 ## Documentation
 Full project walkthrough and detailed task lists are available in the [artifacts directory](file:///Users/shajeebs/.gemini/antigravity/brain/acb0b3f9-f1f9-4a55-b1a3-df3d29ef3dea/).
 - [Full Project Walkthrough](file:///Users/shajeebs/.gemini/antigravity/brain/acb0b3f9-f1f9-4a55-b1a3-df3d29ef3dea/walkthrough.md)
