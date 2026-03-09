@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+        </div>
+        <button type="button" class="btn btn-sm btn-primary dropdown-toggle">
+            <i class="fas fa-calendar me-1"></i> This week
+        </button>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="row">
+    <div class="col-md-3 mb-4">
+        <div class="card p-3">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0 bg-primary-subtle p-3 rounded-circle me-3">
+                    <i class="fas fa-handshake text-primary h4 mb-0"></i>
+                </div>
+                <div>
+                    <h6 class="text-muted mb-1">New Deals</h6>
+                    <h3 class="mb-0 fw-bold">{{ deals_this_month }}</h3>
+                </div>
+            </div>
+            <div class="mt-3">
+                <span class="text-success fw-bold"><i class="fas fa-arrow-up me-1"></i> 12%</span>
+                <span class="text-muted ms-2">vs last month</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card p-3">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0 bg-success-subtle p-3 rounded-circle me-3">
+                    <i class="fas fa-dollar-sign text-success h4 mb-0"></i>
+                </div>
+                <div>
+                    <h6 class="text-muted mb-1">Revenue</h6>
+                    <h3 class="mb-0 fw-bold">${{ revenue_this_month|stringformat:"d" }}</h3>
+                </div>
+            </div>
+            <div class="mt-3">
+                <span class="text-success fw-bold"><i class="fas fa-arrow-up me-1"></i> 8%</span>
+                <span class="text-muted ms-2">vs last month</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card p-3">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0 bg-info-subtle p-3 rounded-circle me-3">
+                    <i class="fas fa-user-plus text-info h4 mb-0"></i>
+                </div>
+                <div>
+                    <h6 class="text-muted mb-1">New Contacts</h6>
+                    <h3 class="mb-0 fw-bold">{{ new_contacts }}</h3>
+                </div>
+            </div>
+            <div class="mt-3">
+                <span class="text-danger fw-bold"><i class="fas fa-arrow-down me-1"></i> 3%</span>
+                <span class="text-muted ms-2">vs last month</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card p-3">
+            <div class="d-flex align-items-center">
+                <div class="flex-shrink-0 bg-warning-subtle p-3 rounded-circle me-3">
+                    <i class="fas fa-tasks text-warning h4 mb-0"></i>
+                </div>
+                <div>
+                    <h6 class="text-muted mb-1">Tasks Due</h6>
+                    <h3 class="mb-0 fw-bold">{{ active_tasks }}</h3>
+                </div>
+            </div>
+            <div class="mt-3">
+                <span class="text-muted">Today's priority</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold">Recent Deals</h5>
+                <a href="#" class="btn btn-sm btn-link text-primary text-decoration-none">View All</a>
+            </div>
+            <div class="card-body px-4">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Deal Name</th>
+                                <th>Contact</th>
+                                <th>Amount</th>
+                                <th>Stage</th>
+                                <th>Close Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><a href="#" class="text-decoration-none text-dark fw-bold">Cloud Migration Pro</a></td>
+                                <td>John Doe</td>
+                                <td>$12,000</td>
+                                <td><span class="badge bg-primary">Negotiation</span></td>
+                                <td>Oct 15, 2026</td>
+                            </tr>
+                            <tr>
+                                <td><a href="#" class="text-decoration-none text-dark fw-bold">Security Audit</a></td>
+                                <td>Jane Smith</td>
+                                <td>$8,500</td>
+                                <td><span class="badge bg-warning text-dark">Proposal</span></td>
+                                <td>Oct 22, 2026</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-white border-0 pt-4 px-4">
+                <h5 class="mb-0 fw-bold">Upcoming Tasks</h5>
+            </div>
+            <div class="card-body px-4">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item px-0 py-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="task1">
+                            <label class="form-check-label ms-2" for="task1">
+                                <span class="d-block fw-bold">Call John Doe</span>
+                                <small class="text-muted">Due: Today, 2:00 PM</small>
+                            </label>
+                        </div>
+                    </li>
+                    <li class="list-group-item px-0 py-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="task2">
+                            <label class="form-check-label ms-2" for="task2">
+                                <span class="d-block fw-bold">Send Proposal</span>
+                                <small class="text-muted">Due: Tomorrow, 10:00 AM</small>
+                            </label>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
