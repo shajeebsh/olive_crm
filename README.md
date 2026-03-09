@@ -3,9 +3,9 @@
 Modern, affordable CRM application targeting small to mid-sized companies (SMBs). Built with Django 5.0 and Wagtail 6.0.
 
 ## Tech Stack
-- **Backend**: Django 5.0+
+- **Backend**: Django 5.0+, Django Rest Framework
 - **CMS**: Wagtail 6.0+
-- **Frontend**: Bootstrap 5, HTMX
+- **Frontend**: Bootstrap 5, HTMX, PWA Ready
 - **Database**: MySQL (Production), SQLite (Local Dev fallback)
 - **Other**: Redis, Celery, OpenAI Integration
 
@@ -23,6 +23,16 @@ Modern, affordable CRM application targeting small to mid-sized companies (SMBs)
 - **Communication Sync**: IMAP Email synchronization and WhatsApp tracking.
 - **Automation**: No-code workflow engine for record-based triggers and actions.
 - **AI Intelligence**: Built-in lead scoring and email composition via OpenAI.
+
+### Phase 3: ERP Lite & API
+- **Invoicing & Payments**: Full billing cycle management.
+- **Inventory Management**: Stock tracking across multiple warehouses.
+- **REST API**: Secure endpoints for all core modules.
+
+### Phase 4: Ecosystem & Optimization
+- **Audit Logs**: Enterprise-grade change tracking.
+- **Partner Program**: Affiliate and referral management.
+- **PWA**: Mobile-ready with progressive web app support.
 
 ## Setup Instructions
 
@@ -68,12 +78,15 @@ To sync external emails into the CRM as interactions:
 python manage.py sync_email
 ```
 
-### 6. Run the Server
+### 6. API Documentation
+The REST API is available at `/api/`. Use the browsable API or tools like Postman.
+
+### 7. Run the Server
 ```bash
 python manage.py runserver
 ```
 Access the application at `http://localhost:8000/`.
 
 ## Documentation
-Walkthroughs and detailed task lists are available in the [artifacts directory](file:///Users/shajeebs/.gemini/antigravity/brain/acb0b3f9-f1f9-4a55-b1a3-df3d29ef3dea/).
-- [Phase 1 & 2 Walkthrough](file:///Users/shajeebs/.gemini/antigravity/brain/acb0b3f9-f1f9-4a55-b1a3-df3d29ef3dea/walkthrough.md)
+Full project walkthrough and detailed task lists are available in the [artifacts directory](file:///Users/shajeebs/.gemini/antigravity/brain/acb0b3f9-f1f9-4a55-b1a3-df3d29ef3dea/).
+- [Full Project Walkthrough](file:///Users/shajeebs/.gemini/antigravity/brain/acb0b3f9-f1f9-4a55-b1a3-df3d29ef3dea/walkthrough.md)
