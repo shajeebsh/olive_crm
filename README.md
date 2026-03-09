@@ -79,10 +79,30 @@ python manage.py sync_email
 ```
 
 ### 6. Automated Testing
-To run the full suite of automated tests:
+To ensure the system is functioning correctly, you can run the automated test suite.
+
+#### a. Run All Tests
 ```bash
+source venv/bin/activate
 python manage.py test
 ```
+
+#### b. Run Tests for Specific Modules
+If you are working on a specific area, you can run tests for just that module:
+```bash
+# Core & AI logic
+python manage.py test olivecrm.core
+
+# CRM & Sales
+python manage.py test olivecrm.contacts olivecrm.sales
+
+# ERP (Invoicing & Inventory)
+python manage.py test olivecrm.invoicing olivecrm.inventory
+
+# Marketing & Automation
+python manage.py test olivecrm.marketing olivecrm.automation olivecrm.communication
+```
+
 The test suite covers:
 - **Core**: AI Service mocking and Audit Logging.
 - **CRM**: Contact and Company relationships.
