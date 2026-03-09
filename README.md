@@ -9,13 +9,20 @@ Modern, affordable CRM application targeting small to mid-sized companies (SMBs)
 - **Database**: MySQL (Production), SQLite (Local Dev fallback)
 - **Other**: Redis, Celery, OpenAI Integration
 
-## Features (Phase 1)
+## Features
+
+### Phase 1: Core Foundation
 - Modular CRM Architecture (`contacts`, `sales`, `reporting`)
 - Contact & Company Management
 - Deal Pipeline & Stage Tracking
-- AI-Ready Lead Scoring
 - Custom Dashboards with flexible widgets
 - Premium UI with custom OliveCRM theme
+
+### Phase 2: Growth & Automation
+- **Wagtail-Powered Marketing**: Build Landing Pages and Email Campaigns within the CMS.
+- **Communication Sync**: IMAP Email synchronization and WhatsApp tracking.
+- **Automation**: No-code workflow engine for record-based triggers and actions.
+- **AI Intelligence**: Built-in lead scoring and email composition via OpenAI.
 
 ## Setup Instructions
 
@@ -44,6 +51,9 @@ DEBUG=True
 SECRET_KEY=your-secret-key
 DATABASE_URL=sqlite:///db.sqlite3
 ALLOWED_HOSTS=localhost,127.0.0.1
+
+# Phase 2: AI Integration
+OPENAI_API_KEY=your-openai-api-key
 ```
 
 ### 4. Database Setup
@@ -52,11 +62,18 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
-### 5. Run the Server
+### 5. Running Email Sync
+To sync external emails into the CRM as interactions:
+```bash
+python manage.py sync_email
+```
+
+### 6. Run the Server
 ```bash
 python manage.py runserver
 ```
 Access the application at `http://localhost:8000/`.
 
 ## Documentation
-Phase 1 walkthrough and detailed task lists are available in the [artifacts directory](file:///Users/shajeebs/.gemini/antigravity/brain/acb0b3f9-f1f9-4a55-b1a3-df3d29ef3dea/).
+Walkthroughs and detailed task lists are available in the [artifacts directory](file:///Users/shajeebs/.gemini/antigravity/brain/acb0b3f9-f1f9-4a55-b1a3-df3d29ef3dea/).
+- [Phase 1 & 2 Walkthrough](file:///Users/shajeebs/.gemini/antigravity/brain/acb0b3f9-f1f9-4a55-b1a3-df3d29ef3dea/walkthrough.md)
