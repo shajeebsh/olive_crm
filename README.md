@@ -78,7 +78,20 @@ To sync external emails into the CRM as interactions:
 python manage.py sync_email
 ```
 
-### 6. API Documentation
+### 6. Automated Testing
+To run the full suite of automated tests:
+```bash
+python manage.py test
+```
+The test suite covers:
+- **Core**: AI Service mocking and Audit Logging.
+- **CRM**: Contact and Company relationships.
+- **Sales**: Pipeline stage transitions and Task management.
+- **ERP**: Invoice total calculations and automated payment processing.
+- **Marketing**: Campaign targeting and Mailing List segmentation.
+- **Automation**: Workflow trigger and action configurations.
+
+### 7. API Documentation
 The REST API is available at `/api/`. Use the browsable API or tools like Postman.
 
 ### 7. Run the Server
