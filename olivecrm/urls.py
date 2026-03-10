@@ -17,6 +17,9 @@ urlpatterns = [
     path("documents/", include(wagtaildocs_urls)),
     path("search/", search_views.search, name="search"),
     path("api/", include("olivecrm.api.urls")),
+    path("contacts/", include("olivecrm.contacts.urls")),
+    path("sales/", include("olivecrm.sales.urls")),
+    path("invoicing/", include("olivecrm.invoicing.urls")),
 ]
 
 
