@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Detail{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 fw-bold mb-0">{{ object.first_name }} {{ object.last_name }}</h1>
+        <div class="btn-group">
+            <button class="btn btn-outline-secondary btn-sm">Edit</button>
+            <button class="btn btn-outline-danger btn-sm">Delete</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-3">Details</h5>
+                    <p class="mb-1 text-muted small">Company</p>
+                    <p class="fw-semibold">{{ object.company.name|default:"-" }}</p>
+                    
+                    <p class="mb-1 text-muted small">Emails</p>
+                    <ul class="list-unstyled">
+                        {% for email_data in object.emails %}
+                        <li><i class="far fa-envelope me-2"></i>{{ email_data.email }} {% if email_data.primary %}<span class="badge bg-light text-dark small">Primary</span>{% endif %}</li>
+                        {% endfor %}
+                    </ul>
+
+                    <p class="mb-1 text-muted small">Status</p>
+                    <span class="badge rounded-pill {% if object.lead_status == 'hot' %}bg-danger{% elif object.lead_status == 'closed' %}bg-success{% else %}bg-primary{% endif %} mb-3">
+                        {{ object.get_lead_status_display }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white pt-3 px-4">
+                    <h5 class="mb-0 fw-bold">Interactions</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted italic">Timeline feature coming soon...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

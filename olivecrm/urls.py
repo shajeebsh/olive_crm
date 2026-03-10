@@ -20,6 +20,8 @@ urlpatterns = [
     path("contacts/", include("olivecrm.contacts.urls")),
     path("sales/", include("olivecrm.sales.urls")),
     path("invoicing/", include("olivecrm.invoicing.urls")),
+    path("profile/", core_views.profile_view, name="profile"),
+    path("settings/", core_views.settings_view, name="settings"),
 ]
 
 

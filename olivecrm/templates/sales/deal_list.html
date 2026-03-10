@@ -6,7 +6,7 @@
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
     <h1 class="h2">Deals</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
-        <button type="button" class="btn btn-sm btn-outline-primary shadow-sm"><i class="fas fa-plus me-1"></i> New Deal</button>
+        <a href="{% url 'sales:deal_create' %}" class="btn btn-sm btn-outline-primary shadow-sm"><i class="fas fa-plus me-1"></i> New Deal</a>
     </div>
 </div>
 
@@ -26,7 +26,9 @@
                 <tbody>
                     {% for deal in deals %}
                     <tr>
-                        <td class="ps-4 fw-semibold">{{ deal.name }}</td>
+                        <td class="ps-4 fw-semibold">
+                            <a href="{% url 'sales:deal_detail' deal.id %}" class="text-decoration-none text-dark">{{ deal.name }}</a>
+                        </td>
                         <td>{{ deal.currency }} {{ deal.amount }}</td>
                         <td>
                             <span class="badge rounded-pill bg-info text-dark opacity-75">

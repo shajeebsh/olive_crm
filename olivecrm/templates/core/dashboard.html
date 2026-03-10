@@ -5,12 +5,19 @@
     <h1 class="h2">Dashboard</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
         <div class="btn-group me-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary">Share</button>
-            <button type="button" class="btn btn-sm btn-outline-secondary">Export</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="alert('Link copied to clipboard!')">Share</button>
+            <a href="{% url 'contacts:contact_export' %}" class="btn btn-sm btn-outline-secondary">Export</a>
         </div>
-        <button type="button" class="btn btn-sm btn-primary dropdown-toggle">
-            <i class="fas fa-calendar me-1"></i> This week
-        </button>
+        <div class="dropdown">
+            <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="fas fa-calendar me-1"></i> This week
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                <li><a class="dropdown-item" href="#">Today</a></li>
+                <li><a class="dropdown-item active" href="#">This Week</a></li>
+                <li><a class="dropdown-item" href="#">This Month</a></li>
+            </ul>
+        </div>
     </div>
 </div>
 
@@ -90,7 +97,7 @@
         <div class="card h-100">
             <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
                 <h5 class="mb-0 fw-bold">Recent Deals</h5>
-                <a href="#" class="btn btn-sm btn-link text-primary text-decoration-none">View All</a>
+                <a href="{% url 'sales:deal_list' %}" class="btn btn-sm btn-link text-primary text-decoration-none">View All</a>
             </div>
             <div class="card-body px-4">
                 <div class="table-responsive">
@@ -105,6 +112,15 @@
                             </tr>
                         </thead>
                         <tbody>
+                            {% for deal in recent_deals %}
+                            <tr>
+                                <td><a href="{% url 'sales:deal_detail' deal.id %}" class="text-decoration-none text-dark fw-bold">{{ deal.name }}</a></td>
+                                <td>{{ deal.contact.first_name }} {{ deal.contact.last_name }}</td>
+                                <td>{{ deal.currency }} {{ deal.amount }}</td>
+                                <td><span class="badge bg-primary">{{ deal.stage }}</span></td>
+                                <td>{{ deal.expected_close_date|date:"M d, Y" }}</td>
+                            </tr>
+                            {% empty %}
                             <tr>
                                 <td><a href="#" class="text-decoration-none text-dark fw-bold">Cloud Migration Pro</a></td>
                                 <td>John Doe</td>
@@ -112,13 +128,7 @@
                                 <td><span class="badge bg-primary">Negotiation</span></td>
                                 <td>Oct 15, 2026</td>
                             </tr>
-                            <tr>
-                                <td><a href="#" class="text-decoration-none text-dark fw-bold">Security Audit</a></td>
-                                <td>Jane Smith</td>
-                                <td>$8,500</td>
-                                <td><span class="badge bg-warning text-dark">Proposal</span></td>
-                                <td>Oct 22, 2026</td>
-                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
