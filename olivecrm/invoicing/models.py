@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.db import models
 from django.conf import settings
 from olivecrm.contacts.models import Contact, Company
@@ -36,7 +37,7 @@ class Invoice(TimeStampedModel):
     def update_totals(self):
         self.subtotal = sum(item.total for item in self.line_items.all())
         # Simplified tax calculation (e.g., 10%)
-        self.tax_total = self.subtotal * models.Decimal(0.1) 
+        self.tax_total = self.subtotal * Decimal('0.1') 
         self.total_amount = self.subtotal + self.tax_total
         self.save()
 
