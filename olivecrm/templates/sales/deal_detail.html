@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Deal {{ deal.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <a href="{% url 'pipeline:pipeline_kanban' %}" class="text-muted text-decoration-none">
+                <i class="bi bi-arrow-left"></i> Back to Pipeline
+            </a>
+            <h1 class="h3 mt-1">{{ deal.name }}</h1>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'sales:deal_edit' deal.pk %}" class="btn btn-outline-secondary">Edit</a>
+            <form method="post" action="{% url 'sales:deal_delete' deal.pk %}" style="display:inline" onsubmit="return confirm('Delete this deal?')">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger">Delete</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Deal Details -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="text-muted small mb-1">DEAL INFO</h5>
+                            <p class="fw-semibold mb-1">Amount: <span class="text-success">${{ deal.amount|default:0 }}</span></p>
+                            <p class="fw-semibold mb-1">Stage: {{ deal.stage }}</p>
+                            <p class="fw-semibold mb-0">Probability: {{ deal.probability }}%</p>
+                        </div>
+                        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                            <h5 class="text-muted small mb-1">KEY DATES</h5>
+                            <p class="mb-1">Expected Close: <span class="fw-semibold">{{ deal.expected_close_date|default:"-" }}</span></p>
+                            <p class="mb-0">Actual Close: <span class="fw-semibold">{{ deal.actual_close_date|default:"-" }}</span></p>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="text-muted small mb-1">COMPANY</h5>
+                            {% if deal.company %}
+                            <p class="fw-semibold mb-0"><a href="{% url 'contacts:company_detail' deal.company.pk %}" class="text-decoration-none text-dark">{{ deal.company.name }}</a></p>
+                            {% else %}
+                            <p class="text-muted mb-0">-</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mt-3 mt-md-0">
+                            <h5 class="text-muted small mb-1">CONTACT</h5>
+                            {% if deal.contact %}
+                            <p class="fw-semibold mb-0"><a href="{% url 'contacts:contact_detail' deal.contact.pk %}" class="text-decoration-none text-dark">{{ deal.contact.first_name }} {{ deal.contact.last_name }}</a></p>
+                            {% else %}
+                            <p class="text-muted mb-0">-</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if deal.notes %}
+                    <hr>
+                    <div>
+                        <h5 class="text-muted small mb-2">NOTES</h5>
+                        <p class="mb-0">{{ deal.notes|linebreaks }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar Info -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h6 class="fw-semibold mb-3">Owner</h6>
+                    <div class="d-flex align-items-center">
+                        {% if deal.deal_owner %}
+                        <img src="https://ui-avatars.com/api/?name={{ deal.deal_owner.get_full_name|urlencode }}&background=random" class="rounded-circle me-3" width="40" height="40">
+                        <div>
+                            <p class="mb-0 fw-semibold">{{ deal.deal_owner.get_full_name|default:deal.deal_owner.username }}</p>
+                            <small class="text-muted">{{ deal.deal_owner.email }}</small>
+                        </div>
+                        {% else %}
+                        <p class="text-muted mb-0">Unassigned</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

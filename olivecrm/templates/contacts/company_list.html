@@ -12,10 +12,34 @@
 
 <div class="row mb-4 text-dark">
     <div class="col-md-3">
-        <div class="card shadow-sm border-0 border-start border-success border-4 rounded-3">
+        <div class="card shadow-sm border-0 border-start border-success border-4 rounded-3 h-100">
             <div class="card-body py-3">
                 <p class="text-muted small fw-bold text-uppercase mb-1">Total Companies</p>
-                <h3 class="fw-bold mb-0 text-success">{{ companies.count }}</h3>
+                <h3 class="fw-bold mb-0 text-success">{{ metrics.total }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 border-start border-primary border-4 rounded-3 h-100">
+            <div class="card-body py-3">
+                <p class="text-muted small fw-bold text-uppercase mb-1">Total Contacts</p>
+                <h3 class="fw-bold mb-0 text-primary">{{ metrics.total_contacts }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 border-start border-info border-4 rounded-3 h-100">
+            <div class="card-body py-3">
+                <p class="text-muted small fw-bold text-uppercase mb-1">Total Invoices</p>
+                <h3 class="fw-bold mb-0 text-info">{{ metrics.total_invoices }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 border-start border-warning border-4 rounded-3 h-100">
+            <div class="card-body py-3">
+                <p class="text-muted small fw-bold text-uppercase mb-1">Total Invoice Value</p>
+                <h3 class="fw-bold mb-0 text-warning">${{ metrics.total_invoice_value|floatformat:2 }}</h3>
             </div>
         </div>
     </div>
