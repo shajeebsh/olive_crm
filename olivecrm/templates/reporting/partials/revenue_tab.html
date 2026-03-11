@@ -1,0 +1,127 @@
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <p class="text-muted small mb-1">Total Invoiced</p>
+        <h4 class="fw-bold">${{ total_invoiced|floatformat:0 }}</h4>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <p class="text-muted small mb-1">Total Paid</p>
+        <h4 class="fw-bold text-success">${{ total_paid|floatformat:0 }}</h4>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <p class="text-muted small mb-1">Outstanding</p>
+        <h4 class="fw-bold">${{ outstanding|floatformat:0 }}</h4>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <p class="text-muted small mb-1">Overdue</p>
+        <h4 class="fw-bold text-danger">${{ overdue|floatformat:0 }}</h4>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+  <div class="col-md-8">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-3">Monthly Revenue (Paid Invoices)</h6>
+        <canvas id="monthlyRevenueChart" height="100"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-3">Invoices by Status</h6>
+        <canvas id="statusChart" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Data Table -->
+<div class="card border-0 shadow-sm">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h6 class="fw-semibold mb-0">Recent Invoices</h6>
+      <a href="{% url 'reporting:export_revenue' %}?period={{ period }}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-download me-1"></i> Export CSV
+      </a>
+    </div>
+    <table class="table table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>Invoice Number</th><th>Contact</th>
+          <th>Total Amount</th><th>Status</th><th>Issue Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for inv in invoices %}
+        <tr>
+          <td>{{ inv.number }}</td>
+          <td>{{ inv.contact|default:"" }}</td>
+          <td>${{ inv.total_amount|floatformat:0 }}</td>
+          <td>
+            <span class="badge border {% if inv.status == 'paid' %}border-success text-success{% elif inv.status == 'overdue' %}border-danger text-danger{% else %}border-warning text-warning{% endif %}">
+              {{ inv.status|title }}
+            </span>
+          </td>
+          <td>{{ inv.issue_date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Chart.js initialization -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Monthly Revenue Bar Chart
+  new Chart(document.getElementById('monthlyRevenueChart'), {
+    type: 'bar',
+    data: {
+      labels: [{% for m in monthly_revenue %}'{{ m.month|date:"M Y" }}',{% endfor %}],
+      datasets: [{
+        label: 'Revenue',
+        data: [{% for m in monthly_revenue %}{{ m.value|default:0 }},{% endfor %}],
+        backgroundColor: '#1a3a2a',
+        borderRadius: 4
+      }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } } }
+  });
+
+  // Status Donut Chart
+  new Chart(document.getElementById('statusChart'), {
+    type: 'doughnut',
+    data: {
+      labels: [{% for s in by_status %}'{{ s.status|title }}',{% endfor %}],
+      datasets: [{
+        data: [{% for s in by_status %}{{ s.value|default:0 }},{% endfor %}],
+        backgroundColor: [
+          '#2d6a4f', // Paid
+          '#d90429', // Overdue
+          '#fca311', // Sent/Draft
+          '#e5e5e5'
+        ]
+      }]
+    },
+    options: { responsive: true }
+  });
+</script>

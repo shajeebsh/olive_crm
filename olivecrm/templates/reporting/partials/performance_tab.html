@@ -1,0 +1,120 @@
+<!-- Overall Tasks Row -->
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-4">Task Completion Rate</h6>
+        <div class="text-center mb-3">
+          <h2 class="display-5 fw-bold text-success mb-0">{{ task_completion_rate }}%</h2>
+          <p class="text-muted small">of tasks completed on time</p>
+        </div>
+        <div class="progress" style="height: 10px;">
+          <div class="progress-bar bg-success" role="progressbar" style="width: {{ task_completion_rate }}%"></div>
+        </div>
+        <div class="d-flex justify-content-between mt-3 text-muted small">
+          <span>{{ tasks_done }} done</span>
+          <span>{{ tasks_total }} total</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-4">Overdue Tasks Action Needed</h6>
+        <div class="d-flex align-items-center">
+          <div class="flex-shrink-0 bg-danger bg-opacity-10 text-danger rounded p-3 me-3">
+            <i class="fas fa-exclamation-triangle fa-2x"></i>
+          </div>
+          <div>
+            <h3 class="fw-bold mb-0 text-danger">{{ tasks_overdue }}</h3>
+            <p class="text-muted small mb-0">Tasks past their deadline</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-3">Pipeline Funnel</h6>
+        <canvas id="funnelChart" height="150"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Leaderboard Row -->
+<div class="row">
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-3">Sales Rep Leaderboard (Closed Won)</h6>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Rank</th>
+                <th>Rep Name</th>
+                <th>Deals Won</th>
+                <th>Revenue Generated</th>
+                <th class="w-25">Performance</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for rep in leaderboard %}
+              <tr>
+                <td class="fw-bold text-muted">#{{ forloop.counter }}</td>
+                <td>
+                  <div class="d-flex align-items-center">
+                    <img src="https://ui-avatars.com/api/?name={{ rep.deal_owner__first_name|default:rep.deal_owner__username }}&background=random" 
+                         class="rounded-circle me-2" width="32" height="32">
+                    {{ rep.deal_owner__first_name }} {{ rep.deal_owner__last_name }}
+                    {% if not rep.deal_owner__first_name %}{{ rep.deal_owner__username }}{% endif %}
+                  </div>
+                </td>
+                <td><span class="badge bg-success rounded-pill px-3">{{ rep.deals_won }}</span></td>
+                <td class="fw-bold text-success">${{ rep.revenue|floatformat:0 }}</td>
+                <td>
+                  <div class="progress" style="height: 6px;">
+                    <!-- Simple pseudo-percentage based on the first element (max revenue) -->
+                    <div class="progress-bar bg-success" role="progressbar" 
+                         style="width: {% widthratio rep.revenue leaderboard.0.revenue 100 %}%"></div>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="5" class="text-center text-muted py-4">No deals won in this period.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js initialization -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Simple horizontal bar chart for Pipeline Funnel
+  new Chart(document.getElementById('funnelChart'), {
+    type: 'bar',
+    data: {
+      labels: [{% for s in stage_counts %}'{{ s.stage }}',{% endfor %}],
+      datasets: [{
+        label: 'Deals',
+        data: [{% for s in stage_counts %}{{ s.count }},{% endfor %}],
+        backgroundColor: '#1a3a2a',
+        borderRadius: 4
+      }]
+    },
+    options: { 
+      indexAxis: 'y', // Makes it horizontal
+      responsive: true, 
+      plugins: { legend: { display: false } } 
+    }
+  });
+</script>

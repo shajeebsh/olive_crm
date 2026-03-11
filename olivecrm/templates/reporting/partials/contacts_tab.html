@@ -1,0 +1,134 @@
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <p class="text-muted small mb-1">Total New Contacts</p>
+        <h4 class="fw-bold">{{ total }}</h4>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <p class="text-muted small mb-1">Hot Leads</p>
+        <h4 class="fw-bold text-danger">{{ hot }}</h4>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <p class="text-muted small mb-1">Warm Leads</p>
+        <h4 class="fw-bold text-warning">{{ warm }}</h4>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <p class="text-muted small mb-1">Cold Leads</p>
+        <h4 class="fw-bold text-info">{{ cold }}</h4>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+  <div class="col-md-8">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-3">New Contacts Trend</h6>
+        <canvas id="monthlyContactsChart" height="100"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-3">Contacts by Lead Status</h6>
+        <canvas id="leadStatusChart" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Data Table -->
+<div class="card border-0 shadow-sm">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h6 class="fw-semibold mb-0">Recent Contacts</h6>
+      <a href="{% url 'reporting:export_contacts' %}?period={{ period }}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-download me-1"></i> Export CSV
+      </a>
+    </div>
+    <table class="table table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>Name</th><th>Company</th>
+          <th>Lead Status</th><th>Lead Score</th><th>Created At</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for contact in contacts %}
+        <tr>
+          <td>{{ contact }}</td>
+          <td>{{ contact.company|default:"" }}</td>
+          <td>
+            <span class="badge 
+              {% if contact.lead_status == 'hot' %}bg-danger
+              {% elif contact.lead_status == 'warm' %}bg-warning text-dark
+              {% elif contact.lead_status == 'cold' %}bg-info text-dark
+              {% else %}bg-secondary{% endif %}">
+              {{ contact.lead_status|title }}
+            </span>
+          </td>
+          <td>{{ contact.lead_score }}</td>
+          <td>{{ contact.created_at.date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Chart.js initialization -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Monthly Contacts Line Chart
+  new Chart(document.getElementById('monthlyContactsChart'), {
+    type: 'line',
+    data: {
+      labels: [{% for m in monthly_new %}'{{ m.month|date:"M Y" }}',{% endfor %}],
+      datasets: [{
+        label: 'New Contacts',
+        data: [{% for m in monthly_new %}{{ m.count }},{% endfor %}],
+        borderColor: '#40916c',
+        backgroundColor: 'rgba(64,145,108,0.1)',
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+  });
+
+  // Lead Status Pie Chart
+  new Chart(document.getElementById('leadStatusChart'), {
+    type: 'pie',
+    data: {
+      labels: [{% for s in by_status %}'{{ s.lead_status|title }}',{% endfor %}],
+      datasets: [{
+        data: [{% for s in by_status %}{{ s.count }},{% endfor %}],
+        backgroundColor: [
+          '#d90429', // hot
+          '#fca311', // warm
+          '#4cc9f0', // cold
+          '#2d6a4f', // customer
+          '#8d99ae'  // inactive
+        ]
+      }]
+    },
+    options: { responsive: true }
+  });
+</script>
