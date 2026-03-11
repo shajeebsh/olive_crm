@@ -2,19 +2,53 @@
 {% block title %}Reports{% endblock %}
 {% block content %}
 <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-        <h1 class="h2">Reports</h1>
-    </div>
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-5 text-center">
-            <i class="fas fa-chart-line fa-4x text-muted mb-4"></i>
-            <h3 class="fw-bold">Reporting Hub</h3>
-            <p class="text-muted">Analytics, performance tracking, and custom reports are being built.</p>
-            <button class="btn btn-secondary mt-3" disabled>
-                <span class="spinner-grow spinner-grow-sm me-2" role="status"></span>
-                Building Insights...
-            </button>
-        </div>
-    </div>
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3">Reports</h1>
+  </div>
+
+  <!-- Tab navigation -->
+  <ul class="nav nav-pills mb-4" id="report-tabs">
+    {% for tab_key, tab_label in tabs %}
+    <li class="nav-item me-2">
+      <a class="nav-link {% if active_tab == tab_key %}active bg-dark text-white{% else %}text-dark{% endif %}"
+         hx-get="{% url 'reporting:'|add:tab_key %}?period={{ period }}"
+         hx-target="#report-content"
+         href="?tab={{ tab_key }}&period={{ period }}"
+         data-tab="{{ tab_key }}">
+        {{ tab_label }}
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+
+  <!-- Tab content loaded here -->
+  <div id="report-content">
+    {% include "reporting/partials/"|add:active_tab|add:"_tab.html" %}
+  </div>
+
 </div>
+
+<script>
+  // Update active tab instantly on click
+  document.querySelectorAll('#report-tabs .nav-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+      // Remove active states
+      document.querySelectorAll('#report-tabs .nav-link').forEach(l => {
+        l.classList.remove('active', 'bg-dark', 'text-white');
+        if (!l.classList.contains('text-dark')) l.classList.add('text-dark');
+      });
+      // Add active state to clicked
+      this.classList.remove('text-dark');
+      this.classList.add('active', 'bg-dark', 'text-white');
+      
+      // Update hidden input in the filter form if it exists
+      const tabKey = this.getAttribute('data-tab');
+      const hiddenInput = document.querySelector('input[name="tab"]');
+      if (hiddenInput && tabKey) {
+          hiddenInput.value = tabKey;
+      }
+    });
+  });
+</script>
 {% endblock %}

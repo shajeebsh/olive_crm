@@ -1,0 +1,73 @@
+<div class="bg-light border-bottom px-4 py-3 mb-4">
+  <form method="get" id="filter-form"
+        hx-get="{% url 'reporting:'|add:tab %}"
+        hx-target="#report-content"
+        hx-push-url="true"
+        class="d-flex flex-wrap align-items-end gap-3">
+
+    <!-- Preserve active tab -->
+    <input type="hidden" name="tab" value="{{ tab }}">
+
+    <!-- Quick period buttons -->
+    <div>
+      <div class="btn-group btn-group-sm">
+        {% for val, label in form.PERIOD_CHOICES %}
+          {% if val != 'custom' %}
+            <input type="radio" class="btn-check" name="period"
+                   id="p_{{ val }}" value="{{ val }}" autocomplete="off"
+                   {% if active_period == val %}checked{% endif %}>
+            <label class="btn btn-outline-secondary" for="p_{{ val }}">
+              {{ label }}
+            </label>
+          {% endif %}
+        {% endfor %}
+        <input type="radio" class="btn-check" name="period"
+               id="p_custom" value="custom" autocomplete="off"
+               {% if active_period == 'custom' %}checked{% endif %}>
+        <label class="btn btn-outline-secondary" for="p_custom">
+          <i class="bi bi-calendar-range"></i> Custom
+        </label>
+      </div>
+    </div>
+
+    <!-- Custom date inputs (hidden by default) -->
+    <div id="custom-inputs" class="d-flex gap-2 align-items-center"
+         style="display:
+           {% if active_period == 'custom' %}flex{% else %}none{% endif %}
+           !important">
+      {{ form.date_from }}
+      <span class="text-muted">to</span>
+      {{ form.date_to }}
+    </div>
+
+    <!-- Apply -->
+    <button type="submit" class="btn btn-sm btn-dark">
+      <i class="bi bi-funnel-fill me-1"></i>Apply
+    </button>
+
+    <!-- Active range badge -->
+    {% if date_from and date_to %}
+    <span class="badge bg-dark fw-normal ms-auto py-2 px-3">
+      <i class="bi bi-calendar-check me-1"></i>
+      {{ date_from }} → {{ date_to }}
+    </span>
+    {% endif %}
+
+  </form>
+</div>
+
+<script>
+  (function() {
+    const radios = document.querySelectorAll('input[name="period"]');
+    const custom = document.getElementById('custom-inputs');
+    radios.forEach(r => {
+      r.addEventListener('change', function() {
+        custom.style.display = this.value === 'custom' ? 'flex' : 'none';
+        if (this.value !== 'custom') {
+          setTimeout(() =>
+            document.getElementById('filter-form').requestSubmit(), 50);
+        }
+      });
+    });
+  })();
+</script>
