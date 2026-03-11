@@ -1,32 +1,16 @@
 from django.test import TestCase
-from olivecrm.contacts.models import Contact
-from .models import Pipeline, Deal, Task
+from django.urls import reverse
+from django.contrib.auth import get_user_model
 
-class SalesModelTest(TestCase):
+User = get_user_model()
+
+class SalesViewTest(TestCase):
     def setUp(self):
-        self.pipeline = Pipeline.objects.create(name="Standard Sales", is_default=True)
-        self.contact = Contact.objects.create(first_name="Buyer", last_name="Doe")
-        self.deal = Deal.objects.create(
-            name="Cloud Project",
-            pipeline=self.pipeline,
-            contact=self.contact,
-            amount=50000,
-            stage="discovery",
-            stage_order=1
+        self.user = User.objects.create_user(
+            username='testuser', password='testpass'
         )
-        from django.utils import timezone
-        self.task = Task.objects.create(
-            title="Follow up call",
-            deal=self.deal,
-            priority="high",
-            status="todo",
-            due_date=timezone.now()
-        )
+        self.client.login(username='testuser', password='testpass')
 
-    def test_deal_stage(self):
-        self.assertEqual(self.deal.stage, "discovery")
-        self.assertEqual(self.deal.amount, 50000)
-
-    def test_task_assignment(self):
-        self.assertEqual(self.task.deal.name, "Cloud Project")
-        self.assertEqual(self.task.priority, "high")
+    def test_pipeline_kanban_loads(self):
+        response = self.client.get(reverse('pipeline:pipeline_kanban'))
+        self.assertEqual(response.status_code, 200)

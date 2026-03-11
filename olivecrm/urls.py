@@ -20,8 +20,13 @@ urlpatterns = [
     path("contacts/", include("olivecrm.contacts.urls")),
     path("sales/", include("olivecrm.sales.urls")),
     path("invoicing/", include("olivecrm.invoicing.urls")),
+    path("reports/", include("olivecrm.reporting.urls", namespace="reporting")),
+    path("pipeline/", include("olivecrm.sales.urls", namespace="pipeline")),
+    path("communications/", include("olivecrm.communication.urls", namespace="communication")),
+    path("automation/", include("olivecrm.automation.urls", namespace="automation")),
+    path("inventory/", include("olivecrm.inventory.urls", namespace="inventory")),
+    path("settings/", include("olivecrm.core.urls", namespace="settings")),
     path("profile/", core_views.profile_view, name="profile"),
-    path("settings/", core_views.settings_view, name="settings"),
 ]
 
 
