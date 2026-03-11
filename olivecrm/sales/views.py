@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView, TemplateView
@@ -18,7 +18,28 @@ def deal_list(request):
             Q(name__icontains=query) | 
             Q(stage__icontains=query)
         )
-    return render(request, 'sales/deal_list.html', {'deals': deals})
+    
+    # Calculate metrics
+    metrics = {
+        'total': {
+            'count': deals.count(),
+            'amount': deals.aggregate(Sum('amount'))['amount__sum'] or 0
+        },
+        'won': {
+            'count': deals.filter(stage='Closed Won').count(),
+            'amount': deals.filter(stage='Closed Won').aggregate(Sum('amount'))['amount__sum'] or 0
+        },
+        'lost': {
+            'count': deals.filter(stage='Closed Lost').count(),
+            'amount': deals.filter(stage='Closed Lost').aggregate(Sum('amount'))['amount__sum'] or 0
+        },
+        'pending': {
+            'count': deals.exclude(stage__in=['Closed Won', 'Closed Lost']).count(),
+            'amount': deals.exclude(stage__in=['Closed Won', 'Closed Lost']).aggregate(Sum('amount'))['amount__sum'] or 0
+        }
+    }
+    
+    return render(request, 'sales/deal_list.html', {'deals': deals, 'metrics': metrics})
 
 class DealCreateView(LoginRequiredMixin, CreateView):
     model = Deal

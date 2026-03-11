@@ -16,7 +16,43 @@
         <div class="card shadow-sm border-0 border-start border-primary border-4 rounded-3">
             <div class="card-body py-3">
                 <p class="text-muted small fw-bold text-uppercase mb-1">Total Deals</p>
-                <h3 class="fw-bold mb-0 text-primary">{{ deals.count }}</h3>
+                <div class="d-flex justify-content-between align-items-end">
+                    <h3 class="fw-bold mb-0 text-primary">{{ metrics.total.count }}</h3>
+                    <span class="fw-semibold text-muted small">{{ metrics.total.amount|currency }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 border-start border-success border-4 rounded-3">
+            <div class="card-body py-3">
+                <p class="text-muted small fw-bold text-uppercase mb-1">Won Deals</p>
+                <div class="d-flex justify-content-between align-items-end">
+                    <h3 class="fw-bold mb-0 text-success">{{ metrics.won.count }}</h3>
+                    <span class="fw-semibold text-muted small">{{ metrics.won.amount|currency }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 border-start border-danger border-4 rounded-3">
+            <div class="card-body py-3">
+                <p class="text-muted small fw-bold text-uppercase mb-1">Lost Deals</p>
+                <div class="d-flex justify-content-between align-items-end">
+                    <h3 class="fw-bold mb-0 text-danger">{{ metrics.lost.count }}</h3>
+                    <span class="fw-semibold text-muted small">{{ metrics.lost.amount|currency }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 border-start border-info border-4 rounded-3">
+            <div class="card-body py-3">
+                <p class="text-muted small fw-bold text-uppercase mb-1">Pending Deals</p>
+                <div class="d-flex justify-content-between align-items-end">
+                    <h3 class="fw-bold mb-0 text-info">{{ metrics.pending.count }}</h3>
+                    <span class="fw-semibold text-muted small">{{ metrics.pending.amount|currency }}</span>
+                </div>
             </div>
         </div>
     </div>
