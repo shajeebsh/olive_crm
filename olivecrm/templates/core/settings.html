@@ -8,10 +8,10 @@
     <div class="row">
         <div class="col-md-4">
             <div class="list-group shadow-sm border-0">
-                <a href="#" class="list-group-item list-group-item-action active border-0">General</a>
-                <a href="#" class="list-group-item list-group-item-action border-0">Security</a>
-                <a href="#" class="list-group-item list-group-item-action border-0">Notifications</a>
-                <a href="#" class="list-group-item list-group-item-action border-0 text-danger">Organization</a>
+                <a href="{% url 'settings:index' %}" class="list-group-item list-group-item-action active border-0">General</a>
+                <a href="#" class="list-group-item list-group-item-action border-0 disabled" aria-disabled="true">Security</a>
+                <a href="#" class="list-group-item list-group-item-action border-0 disabled" aria-disabled="true">Notifications</a>
+                <a href="{% url 'settings:settings_organization' %}" class="list-group-item list-group-item-action border-0">Organization</a>
             </div>
         </div>
         <div class="col-md-8">

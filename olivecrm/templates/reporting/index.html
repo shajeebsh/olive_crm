@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Reports</h1>
+    </div>
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-5 text-center">
+            <i class="fas fa-chart-line fa-4x text-muted mb-4"></i>
+            <h3 class="fw-bold">Reporting Hub</h3>
+            <p class="text-muted">Analytics, performance tracking, and custom reports are being built.</p>
+            <button class="btn btn-secondary mt-3" disabled>
+                <span class="spinner-grow spinner-grow-sm me-2" role="status"></span>
+                Building Insights...
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

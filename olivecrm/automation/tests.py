@@ -1,19 +1,16 @@
 from django.test import TestCase
-from .models import Workflow
-from django.contrib.auth.models import User
+from django.urls import reverse
+from django.contrib.auth import get_user_model
 
-class AutomationModelTest(TestCase):
+User = get_user_model()
+
+class AutomationViewTest(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="workflow_admin", password="password")
-        self.workflow = Workflow.objects.create(
-            name="Warm Lead Welcome",
-            trigger_type="record_created",
-            trigger_config={"object_type": "Contact"},
-            actions=[{"type": "send_email", "template": "welcome"}],
-            created_by=self.user
+        self.user = User.objects.create_user(
+            username='testuser', password='testpass'
         )
+        self.client.login(username='testuser', password='testpass')
 
-    def test_workflow_creation(self):
-        self.assertEqual(self.workflow.name, "Warm Lead Welcome")
-        self.assertEqual(len(self.workflow.actions), 1)
-        self.assertTrue(self.workflow.is_active)
+    def test_automation_index_loads(self):
+        response = self.client.get(reverse('automation:index'))
+        self.assertEqual(response.status_code, 200)

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load crm_filters %}
 
 {% block title %}Deals{% endblock %}
 
@@ -7,6 +8,17 @@
     <h1 class="h2">Deals</h1>
     <div class="btn-toolbar mb-2 mb-md-0">
         <a href="{% url 'sales:deal_create' %}" class="btn btn-sm btn-outline-primary shadow-sm"><i class="fas fa-plus me-1"></i> New Deal</a>
+    </div>
+</div>
+
+<div class="row mb-4 text-dark">
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 border-start border-primary border-4 rounded-3">
+            <div class="card-body py-3">
+                <p class="text-muted small fw-bold text-uppercase mb-1">Total Deals</p>
+                <h3 class="fw-bold mb-0 text-primary">{{ deals.count }}</h3>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -29,15 +41,41 @@
                         <td class="ps-4 fw-semibold">
                             <a href="{% url 'sales:deal_detail' deal.id %}" class="text-decoration-none text-dark">{{ deal.name }}</a>
                         </td>
-                        <td>{{ deal.currency }} {{ deal.amount }}</td>
+                        <td>{{ deal.amount|currency }}</td>
                         <td>
                             <span class="badge rounded-pill bg-info text-dark opacity-75">
                                 {{ deal.stage }}
                             </span>
                         </td>
-                        <td>{{ deal.expected_close_date }}</td>
+                        <td>{{ deal.expected_close_date|default:"-" }}</td>
                         <td class="text-end pe-4">
-                            <button class="btn btn-sm btn-light border-0"><i class="fas fa-ellipsis-v"></i></button>
+                            <div class="dropdown">
+                                <button class="btn btn-link text-dark p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'sales:deal_detail' deal.id %}">
+                                            <i class="bi bi-eye me-2"></i>View
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'sales:deal_edit' deal.id %}">
+                                            <i class="bi bi-pencil me-2"></i>Edit
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="#" 
+                                           hx-delete="{% url 'sales:deal_delete' deal.id %}"
+                                           hx-confirm="Are you sure you want to delete this deal?"
+                                           hx-target="closest tr"
+                                           hx-swap="outerHTML">
+                                            <i class="bi bi-trash me-2"></i>Delete
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                     {% empty %}

@@ -10,6 +10,17 @@
     </div>
 </div>
 
+<div class="row mb-4 text-dark">
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 border-start border-info border-4 rounded-3">
+            <div class="card-body py-3">
+                <p class="text-muted small fw-bold text-uppercase mb-1">Total Tasks</p>
+                <h3 class="fw-bold mb-0 text-info">{{ tasks.count }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="card shadow-sm border-0 rounded-3">
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -27,7 +38,15 @@
                     {% for task in tasks %}
                     <tr>
                         <td class="ps-4 fw-semibold">{{ task.title }}</td>
-                        <td>{{ task.deal.name|default:task.contact.first_name|default:"-" }}</td>
+                        <td>
+                            {% if task.deal %}
+                                {{ task.deal.name }}
+                            {% elif task.contact %}
+                                {{ task.contact.first_name }} {{ task.contact.last_name|default:"" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
                         <td>
                             <span class="badge rounded-pill {% if task.priority == 'high' %}bg-danger{% elif task.priority == 'medium' %}bg-warning text-dark{% else %}bg-info{% endif %} opacity-75">
                                 {{ task.get_priority_display }}
@@ -35,7 +54,28 @@
                         </td>
                         <td>{{ task.due_date }}</td>
                         <td class="text-end pe-4">
-                            <button class="btn btn-sm btn-light border-0"><i class="fas fa-ellipsis-v"></i></button>
+                            <div class="dropdown">
+                                <button class="btn btn-link text-dark p-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'sales:task_edit' task.id %}">
+                                            <i class="bi bi-pencil me-2"></i>Edit
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item text-danger" href="#" 
+                                           hx-delete="{% url 'sales:task_delete' task.id %}"
+                                           hx-confirm="Are you sure you want to delete this task?"
+                                           hx-target="closest tr"
+                                           hx-swap="outerHTML">
+                                            <i class="bi bi-trash me-2"></i>Delete
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                     {% empty %}

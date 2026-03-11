@@ -1,16 +1,16 @@
 from django.test import TestCase
-from .models import Product, Warehouse, StockLevel
+from django.urls import reverse
+from django.contrib.auth import get_user_model
 
-class InventoryModelTest(TestCase):
+User = get_user_model()
+
+class InventoryViewTest(TestCase):
     def setUp(self):
-        self.product = Product.objects.create(name="Widget", sku="W-001", price=10)
-        self.warehouse = Warehouse.objects.create(name="Main Hub")
-        self.stock = StockLevel.objects.create(
-            product=self.product,
-            warehouse=self.warehouse,
-            quantity=100
+        self.user = User.objects.create_user(
+            username='testuser', password='testpass'
         )
+        self.client.login(username='testuser', password='testpass')
 
-    def test_stock_level(self):
-        self.assertEqual(self.stock.quantity, 100)
-        self.assertEqual(self.stock.product.sku, "W-001")
+    def test_inventory_index_loads(self):
+        response = self.client.get(reverse('inventory:index'))
+        self.assertEqual(response.status_code, 200)

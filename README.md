@@ -25,14 +25,21 @@ Modern, affordable CRM application targeting small to mid-sized companies (SMBs)
 - **AI Intelligence**: Built-in lead scoring and email composition via OpenAI.
 
 ### Phase 3: ERP Lite & API
-- **Invoicing & Payments**: Full billing cycle management.
-- **Inventory Management**: Stock tracking across multiple warehouses.
+- **Invoicing & Payments**: Full billing cycle management with detail views, PDF-ready status tracking, and CRUD.
+- **Inventory Management**: Stock tracking across multiple warehouses with title-aware index views.
 - **REST API**: Secure endpoints for all core modules.
 
 ### Phase 4: Ecosystem & Optimization
 - **Audit Logs**: Enterprise-grade change tracking.
 - **Partner Program**: Affiliate and referral management.
 - **PWA**: Mobile-ready with progressive web app support.
+
+### Phase 8: UX Polish & QA (Latest)
+- **Advanced Lists**: 3-dot dropdown "Actions" menu for every list view (Contacts, Deals, Invoices, etc.).
+- **Live Metrics**: Dashboard widgets powered by real-time querysets (no hardcoded data).
+- **Consistent UI**: Custom `currency` filter ($1,234.56) and text-truncation on Kanban cards.
+- **Detailed Invoicing**: High-fidelity detail page for invoices with line-item summaries and action buttons.
+- **Enhanced Kanban**: Visual board with dynamic owner avatars and status-aware styling.
 
 ## Setup Instructions
 
@@ -138,10 +145,12 @@ Validate the full system integration by following these core workflows:
 
 ### 3. Sales Pipeline & ERP Lifecycle
 1. Convert a `Contact` into a `Deal` within a sales `Pipeline`.
-2. Move the `Deal` to the "Won" stage.
-3. Generate an `Invoice` for the deal with at least two `Line Items`.
-4. Record a `Payment` against the invoice.
-5. **Verify**: Invoice status changes to "Paid" and a `StockLevel` deduction is triggered for associated products.
+2. Open the **Pipeline Kanban** view and observe the dynamic user avatars and text truncation.
+3. Click on a card to navigate to the **Deal Detail** page.
+4. Move the `Deal` to the "Won" stage and use the **3-dot Actions menu** to create an Invoice.
+5. Generate an `Invoice` with at least two `Line Items` and view the high-fidelity **Invoice Detail** page.
+6. Record a `Payment` against the invoice or use the "Mark as Paid" action.
+7. **Verify**: Invoice status changes to "Paid", all amounts are formatted with the `currency` filter, and a `StockLevel` deduction is triggered.
 
 ### 4. Communication & Audit
 1. Run `python manage.py sync_email`.
