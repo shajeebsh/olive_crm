@@ -11,11 +11,27 @@
 </div>
 
 <div class="row mb-4 text-dark">
-    <div class="col-md-3">
-        <div class="card shadow-sm border-0 border-start border-primary border-4 rounded-3">
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 border-start border-primary border-4 rounded-3 h-100">
             <div class="card-body py-3">
                 <p class="text-muted small fw-bold text-uppercase mb-1">Total Contacts</p>
-                <h3 class="fw-bold mb-0 text-primary">{{ contacts.count }}</h3>
+                <h3 class="fw-bold mb-0 text-primary">{{ metrics.total }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 border-start border-success border-4 rounded-3 h-100">
+            <div class="card-body py-3">
+                <p class="text-muted small fw-bold text-uppercase mb-1">Total Deals</p>
+                <h3 class="fw-bold mb-0 text-success">{{ metrics.total_deals }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm border-0 border-start border-info border-4 rounded-3 h-100">
+            <div class="card-body py-3">
+                <p class="text-muted small fw-bold text-uppercase mb-1">Total Deal Value</p>
+                <h3 class="fw-bold mb-0 text-info">${{ metrics.total_deal_value|floatformat:2 }}</h3>
             </div>
         </div>
     </div>

@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
@@ -8,6 +8,8 @@ from django.shortcuts import render, redirect
 from .models import Contact, Company
 from .forms import ContactForm, CompanyForm
 from olivecrm.core.utils import ExportCSVView
+from olivecrm.sales.models import Deal
+from olivecrm.invoicing.models import Invoice
 
 @login_required
 def contact_list(request):
@@ -19,7 +21,14 @@ def contact_list(request):
             Q(last_name__icontains=query) | 
             Q(company__name__icontains=query)
         )
-    return render(request, 'contacts/contact_list.html', {'contacts': contacts})
+    
+    deals = Deal.objects.filter(contact__in=contacts)
+    metrics = {
+        'total': contacts.count(),
+        'total_deals': deals.count(),
+        'total_deal_value': deals.aggregate(Sum('amount'))['amount__sum'] or 0,
+    }
+    return render(request, 'contacts/contact_list.html', {'contacts': contacts, 'metrics': metrics})
 
 class ContactCreateView(LoginRequiredMixin, CreateView):
     model = Contact
@@ -57,7 +66,15 @@ def company_list(request):
             Q(industry__icontains=query) | 
             Q(domain__icontains=query)
         )
-    return render(request, 'contacts/company_list.html', {'companies': companies})
+    
+    invoices = Invoice.objects.filter(company__in=companies)
+    metrics = {
+        'total': companies.count(),
+        'total_contacts': Contact.objects.filter(company__in=companies).count(),
+        'total_invoices': invoices.count(),
+        'total_invoice_value': invoices.aggregate(Sum('total_amount'))['total_amount__sum'] or 0,
+    }
+    return render(request, 'contacts/company_list.html', {'companies': companies, 'metrics': metrics})
 
 class CompanyCreateView(LoginRequiredMixin, CreateView):
     model = Company

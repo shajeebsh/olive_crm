@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
@@ -17,7 +17,28 @@ def invoice_list(request):
         invoices = invoices.filter(
             Q(number__icontains=query)
         )
-    return render(request, 'invoicing/invoice_list.html', {'invoices': invoices})
+    
+    # Calculate metrics
+    metrics = {
+        'total': {
+            'count': invoices.count(),
+            'amount': invoices.aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+        },
+        'paid': {
+            'count': invoices.filter(status='paid').count(),
+            'amount': invoices.filter(status='paid').aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+        },
+        'overdue': {
+            'count': invoices.filter(status='overdue').count(),
+            'amount': invoices.filter(status='overdue').aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+        },
+        'cancelled': {
+            'count': invoices.filter(status='cancelled').count(),
+            'amount': invoices.filter(status='cancelled').aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+        }
+    }
+    
+    return render(request, 'invoicing/invoice_list.html', {'invoices': invoices, 'metrics': metrics})
 
 class InvoiceCreateView(LoginRequiredMixin, CreateView):
     model = Invoice

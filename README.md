@@ -39,7 +39,17 @@ Modern, affordable CRM application targeting small to mid-sized companies (SMBs)
 - **Live Metrics**: Dashboard widgets powered by real-time querysets (no hardcoded data).
 - **Consistent UI**: Custom `currency` filter ($1,234.56) and text-truncation on Kanban cards.
 - **Detailed Invoicing**: High-fidelity detail page for invoices with line-item summaries and action buttons.
-- **Enhanced Kanban**: Visual board with dynamic owner avatars and status-aware styling.
+- **Enhanced Kanban**: Visual board with dynamic owner avatars, status-aware styling, and interactive filter panel.
+- **Pipeline Color Coding**: Each Kanban stage has a distinct color scheme for quick visual identification:
+  | Stage | Color |
+  |---|---|
+  | Lead | Blue |
+  | Qualified | Yellow |
+  | Proposal | Purple |
+  | Negotiation | Orange |
+  | Closed Won | Green |
+- **Probability Badges**: Each deal card displays a color-coded probability badge — 🟢 High (≥80%), 🟡 Medium (40–79%), 🔴 Low (<40%).
+- **List Scorecards**: Company list shows Total Contacts, Total Invoices, and Total Invoice Value. Contact list shows Total Contacts, Total Deals, and Total Deal Value.
 
 ## Setup Instructions
 
@@ -145,8 +155,8 @@ Validate the full system integration by following these core workflows:
 
 ### 3. Sales Pipeline & ERP Lifecycle
 1. Convert a `Contact` into a `Deal` within a sales `Pipeline`.
-2. Open the **Pipeline Kanban** view and observe the dynamic user avatars and text truncation.
-3. Click on a card to navigate to the **Deal Detail** page.
+2. Open the **Pipeline Kanban** view and observe the color-coded stage columns (Blue → Lead, Yellow → Qualified, Purple → Proposal, Orange → Negotiation, Green → Closed Won). Each card shows a probability badge (🟢 ≥80% / 🟡 40–79% / 🔴 <40%) and dynamic owner avatars.
+3. Use the **Filter panel** (top-right) to filter deals by owner or expected close date range.
 4. Move the `Deal` to the "Won" stage and use the **3-dot Actions menu** to create an Invoice.
 5. Generate an `Invoice` with at least two `Line Items` and view the high-fidelity **Invoice Detail** page.
 6. Record a `Payment` against the invoice or use the "Mark as Paid" action.

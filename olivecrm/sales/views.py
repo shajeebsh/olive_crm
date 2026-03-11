@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView, TemplateView
@@ -18,7 +18,28 @@ def deal_list(request):
             Q(name__icontains=query) | 
             Q(stage__icontains=query)
         )
-    return render(request, 'sales/deal_list.html', {'deals': deals})
+    
+    # Calculate metrics
+    metrics = {
+        'total': {
+            'count': deals.count(),
+            'amount': deals.aggregate(Sum('amount'))['amount__sum'] or 0
+        },
+        'won': {
+            'count': deals.filter(stage='Closed Won').count(),
+            'amount': deals.filter(stage='Closed Won').aggregate(Sum('amount'))['amount__sum'] or 0
+        },
+        'lost': {
+            'count': deals.filter(stage='Closed Lost').count(),
+            'amount': deals.filter(stage='Closed Lost').aggregate(Sum('amount'))['amount__sum'] or 0
+        },
+        'pending': {
+            'count': deals.exclude(stage__in=['Closed Won', 'Closed Lost']).count(),
+            'amount': deals.exclude(stage__in=['Closed Won', 'Closed Lost']).aggregate(Sum('amount'))['amount__sum'] or 0
+        }
+    }
+    
+    return render(request, 'sales/deal_list.html', {'deals': deals, 'metrics': metrics})
 
 class DealCreateView(LoginRequiredMixin, CreateView):
     model = Deal
@@ -85,15 +106,37 @@ class PipelineKanbanView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         from .models import Deal
-        # Predefined stages for the Kanban board
-        stages = [
-            {'name': 'Lead', 'deals': Deal.objects.filter(stage='Lead')},
-            {'name': 'Qualified', 'deals': Deal.objects.filter(stage='Qualified')},
-            {'name': 'Proposal', 'deals': Deal.objects.filter(stage='Proposal')},
-            {'name': 'Negotiation', 'deals': Deal.objects.filter(stage='Negotiation')},
-            {'name': 'Closed Won', 'deals': Deal.objects.filter(stage='Closed Won')},
-        ]
+        from django.contrib.auth.models import User
+
+        # Read filter params
+        request = self.request
+        owner_id = request.GET.get('owner')
+        date_from = request.GET.get('date_from')
+        date_to = request.GET.get('date_to')
+
+        # Base queryset with filters applied
+        def filtered_deals(stage_name):
+            qs = Deal.objects.filter(stage=stage_name)
+            if owner_id:
+                qs = qs.filter(deal_owner__id=owner_id)
+            if date_from:
+                qs = qs.filter(expected_close_date__gte=date_from)
+            if date_to:
+                qs = qs.filter(expected_close_date__lte=date_to)
+            return qs
+
+        stage_names = ['Lead', 'Qualified', 'Proposal', 'Negotiation', 'Closed Won']
+        stages = [{'name': s, 'deals': filtered_deals(s)} for s in stage_names]
+
+        # Pass filter state back to template
+        owners = User.objects.filter(deals__isnull=False).distinct()
         context['stages'] = stages
+        context['owners'] = owners
+        context['filter'] = {
+            'owner': owner_id,
+            'date_from': date_from or '',
+            'date_to': date_to or '',
+        }
         return context
 
 class DealExportView(ExportCSVView):
