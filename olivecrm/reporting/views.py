@@ -11,18 +11,13 @@ from django.utils import timezone
 
 # ── Helper ────────────────────────────────────────────────────────────────────
 
-def get_period_start(period):
-    now = timezone.now()
-    if period == 'week':
-        from datetime import timedelta
-        return now - timedelta(days=7)
-    elif period == 'quarter':
-        quarter_start_month = ((now.month - 1) // 3) * 3 + 1
-        return now.replace(month=quarter_start_month, day=1, hour=0, minute=0, second=0, microsecond=0)
-    elif period == 'year':
-        return now.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
-    else:  # default: month
-        return now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+def _get_range(request):
+    from .forms import DateRangeForm
+    today = timezone.now().date()
+    form  = DateRangeForm(request.GET or None)
+    if form.is_valid():
+        return form, *form.get_date_range()
+    return form, today.replace(day=1), today
 
 
 # ── Index View ────────────────────────────────────────────────────────────────
@@ -32,7 +27,10 @@ class ReportsIndexView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        from .forms import DateRangeForm
+        
         context['active_tab'] = self.request.GET.get('tab', 'sales')
+        context['tab'] = context['active_tab']
         context['period'] = self.request.GET.get('period', 'month')
         context['tabs'] = [
             ('sales', 'Sales'),
@@ -40,12 +38,7 @@ class ReportsIndexView(LoginRequiredMixin, TemplateView):
             ('contacts', 'Contacts'),
             ('performance', 'Performance'),
         ]
-        context['periods'] = [
-            ('week', 'This Week'),
-            ('month', 'This Month'),
-            ('quarter', 'This Quarter'),
-            ('year', 'This Year'),
-        ]
+        context['periods'] = DateRangeForm.PERIOD_CHOICES[:4]  # don't show custom here directly
         return context
 
 
@@ -55,10 +48,11 @@ class SalesReportView(LoginRequiredMixin, View):
     def get(self, request):
         from olivecrm.sales.models import Deal
 
-        period = request.GET.get('period', 'month')
-        date_from = get_period_start(period)
+        form, date_from, date_to = _get_range(request)
 
-        deals = Deal.objects.filter(created_at__gte=date_from)
+        deals = Deal.objects.filter(
+            created_at__date__range=(date_from, date_to)
+        )
 
         total_value = deals.aggregate(total=Sum('amount'))['total'] or 0
         total_count = deals.count()
@@ -72,9 +66,12 @@ class SalesReportView(LoginRequiredMixin, View):
                  .annotate(count=Count('id'), value=Sum('amount'))
                  .order_by('stage')
         )
-
+        
+        # Monthly trend still shows last 12 months from the end date
+        from datetime import timedelta
+        year_ago = date_to - timedelta(days=365)
         monthly = list(
-            Deal.objects.filter(created_at__gte=get_period_start('year'))
+            Deal.objects.filter(created_at__date__gte=year_ago)
                 .annotate(month=TruncMonth('created_at'))
                 .values('month')
                 .annotate(count=Count('id'), value=Sum('amount'))
@@ -82,6 +79,11 @@ class SalesReportView(LoginRequiredMixin, View):
         )
 
         context = {
+            'form': form,
+            'tab': 'sales',
+            'active_period': request.GET.get('period', 'month'),
+            'date_from': date_from,
+            'date_to': date_to,
             'total_value': total_value,
             'total_count': total_count,
             'win_rate': win_rate,
@@ -89,7 +91,7 @@ class SalesReportView(LoginRequiredMixin, View):
             'by_stage': by_stage,
             'monthly': monthly,
             'deals': deals.select_related('contact', 'deal_owner')[:20],
-            'period': period,
+            'period': request.GET.get('period', 'month'),
         }
         return render(request, 'reporting/partials/sales_tab.html', context)
 
@@ -100,10 +102,9 @@ class RevenueReportView(LoginRequiredMixin, View):
     def get(self, request):
         from olivecrm.invoicing.models import Invoice
 
-        period = request.GET.get('period', 'month')
-        date_from = get_period_start(period)
+        form, date_from, date_to = _get_range(request)
 
-        invoices = Invoice.objects.filter(issue_date__gte=date_from.date())
+        invoices = Invoice.objects.filter(issue_date__range=(date_from, date_to))
 
         total_invoiced = invoices.aggregate(t=Sum('total_amount'))['t'] or 0
         total_paid = invoices.filter(status='paid').aggregate(t=Sum('total_amount'))['t'] or 0
@@ -115,10 +116,12 @@ class RevenueReportView(LoginRequiredMixin, View):
                     .annotate(count=Count('id'), value=Sum('total_amount'))
         )
 
+        from datetime import timedelta
+        year_ago = date_to - timedelta(days=365)
         monthly_revenue = list(
             Invoice.objects.filter(
                 status='paid',
-                issue_date__gte=get_period_start('year').date()
+                issue_date__gte=year_ago
             ).annotate(month=TruncMonth('issue_date'))
              .values('month')
              .annotate(value=Sum('total_amount'))
@@ -126,6 +129,11 @@ class RevenueReportView(LoginRequiredMixin, View):
         )
 
         context = {
+            'form': form,
+            'tab': 'revenue',
+            'active_period': request.GET.get('period', 'month'),
+            'date_from': date_from,
+            'date_to': date_to,
             'total_invoiced': total_invoiced,
             'total_paid': total_paid,
             'outstanding': outstanding,
@@ -133,7 +141,8 @@ class RevenueReportView(LoginRequiredMixin, View):
             'by_status': by_status,
             'monthly_revenue': monthly_revenue,
             'invoices': invoices.select_related('contact')[:20],
-            'period': period,
+            'period': request.GET.get('period', 'month'),
+            'total_count': invoices.count(),
         }
         return render(request, 'reporting/partials/revenue_tab.html', context)
 
@@ -144,17 +153,18 @@ class ContactsReportView(LoginRequiredMixin, View):
     def get(self, request):
         from olivecrm.contacts.models import Contact
 
-        period = request.GET.get('period', 'month')
-        date_from = get_period_start(period)
+        form, date_from, date_to = _get_range(request)
 
-        contacts = Contact.objects.filter(created_at__gte=date_from)
+        contacts = Contact.objects.filter(created_at__date__range=(date_from, date_to))
 
         by_status = list(
-            Contact.objects.values('lead_status').annotate(count=Count('id'))
+            contacts.values('lead_status').annotate(count=Count('id'))
         )
 
+        from datetime import timedelta
+        year_ago = date_to - timedelta(days=365)
         monthly_new = list(
-            Contact.objects.filter(created_at__gte=get_period_start('year'))
+            Contact.objects.filter(created_at__date__gte=year_ago)
                 .annotate(month=TruncMonth('created_at'))
                 .values('month')
                 .annotate(count=Count('id'))
@@ -162,6 +172,12 @@ class ContactsReportView(LoginRequiredMixin, View):
         )
 
         context = {
+            'form': form,
+            'tab': 'contacts',
+            'active_period': request.GET.get('period', 'month'),
+            'date_from': date_from,
+            'date_to': date_to,
+            'total_count': contacts.count(),
             'total': contacts.count(),
             'hot': contacts.filter(lead_status='hot').count(),
             'warm': contacts.filter(lead_status='warm').count(),
@@ -169,7 +185,7 @@ class ContactsReportView(LoginRequiredMixin, View):
             'by_status': by_status,
             'monthly_new': monthly_new,
             'contacts': contacts.select_related('company')[:20],
-            'period': period,
+            'period': request.GET.get('period', 'month'),
         }
         return render(request, 'reporting/partials/contacts_tab.html', context)
 
@@ -180,12 +196,11 @@ class PerformanceReportView(LoginRequiredMixin, View):
     def get(self, request):
         from olivecrm.sales.models import Deal, Task
 
-        period = request.GET.get('period', 'month')
-        date_from = get_period_start(period)
+        form, date_from, date_to = _get_range(request)
 
         leaderboard = list(
             Deal.objects.filter(
-                created_at__gte=date_from,
+                created_at__date__range=(date_from, date_to),
                 stage='Closed Won'
             ).values(
                 'deal_owner__first_name',
@@ -197,27 +212,35 @@ class PerformanceReportView(LoginRequiredMixin, View):
             ).order_by('-revenue')
         )
 
+        deals = Deal.objects.filter(created_at__date__range=(date_from, date_to))
         stage_counts = list(
-            Deal.objects.filter(created_at__gte=date_from)
-                        .values('stage')
-                        .annotate(count=Count('id'))
-                        .order_by('stage')
+            deals.values('stage')
+                 .annotate(count=Count('id'))
+                 .order_by('stage')
         )
 
         now = timezone.now()
-        tasks_total = Task.objects.filter(due_date__gte=date_from).count()
-        tasks_done = Task.objects.filter(due_date__gte=date_from, status='completed').count()
+        tasks = Task.objects.filter(due_date__date__range=(date_from, date_to))
+        
+        tasks_total = tasks.count()
+        tasks_done = tasks.filter(status='completed').count()
         tasks_overdue = Task.objects.filter(due_date__lt=now, status__in=['pending', 'in_progress']).count()
         task_completion_rate = round((tasks_done / tasks_total * 100), 1) if tasks_total > 0 else 0
 
         context = {
+            'form': form,
+            'tab': 'performance',
+            'active_period': request.GET.get('period', 'month'),
+            'date_from': date_from,
+            'date_to': date_to,
+            'total_count': deals.count(),
             'leaderboard': leaderboard,
             'stage_counts': stage_counts,
             'tasks_total': tasks_total,
             'tasks_done': tasks_done,
             'tasks_overdue': tasks_overdue,
             'task_completion_rate': task_completion_rate,
-            'period': period,
+            'period': request.GET.get('period', 'month'),
         }
         return render(request, 'reporting/partials/performance_tab.html', context)
 
@@ -228,9 +251,9 @@ class ExportSalesCSVView(LoginRequiredMixin, View):
     def get(self, request):
         from olivecrm.sales.models import Deal
 
-        period = request.GET.get('period', 'month')
+        form, date_from, date_to = _get_range(request)
         deals = Deal.objects.filter(
-            created_at__gte=get_period_start(period)
+            created_at__date__range=(date_from, date_to)
         ).select_related('contact', 'deal_owner')
 
         response = HttpResponse(content_type='text/csv')
@@ -253,9 +276,9 @@ class ExportRevenueCSVView(LoginRequiredMixin, View):
     def get(self, request):
         from olivecrm.invoicing.models import Invoice
 
-        period = request.GET.get('period', 'month')
+        form, date_from, date_to = _get_range(request)
         invoices = Invoice.objects.filter(
-            issue_date__gte=get_period_start(period).date()
+            issue_date__range=(date_from, date_to)
         ).select_related('contact')
 
         response = HttpResponse(content_type='text/csv')
@@ -277,9 +300,9 @@ class ExportContactsCSVView(LoginRequiredMixin, View):
     def get(self, request):
         from olivecrm.contacts.models import Contact
 
-        period = request.GET.get('period', 'month')
+        form, date_from, date_to = _get_range(request)
         contacts = Contact.objects.filter(
-            created_at__gte=get_period_start(period)
+            created_at__date__range=(date_from, date_to)
         ).select_related('company')
 
         response = HttpResponse(content_type='text/csv')

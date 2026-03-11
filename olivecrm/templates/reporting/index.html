@@ -5,25 +5,17 @@
 
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h1 class="h3">Reports</h1>
-    <div class="btn-group" role="group">
-      {% for p, label in periods %}
-      <a href="?tab={{ active_tab }}&period={{ p }}"
-         class="btn btn-sm {% if period == p %}btn-dark{% else %}btn-outline-secondary{% endif %}">
-        {{ label }}
-      </a>
-      {% endfor %}
-    </div>
   </div>
 
   <!-- Tab navigation -->
-  <ul class="nav nav-tabs mb-4">
+  <ul class="nav nav-pills mb-4" id="report-tabs">
     {% for tab_key, tab_label in tabs %}
-    <li class="nav-item">
-      <a class="nav-link {% if active_tab == tab_key %}active{% endif %}"
+    <li class="nav-item me-2">
+      <a class="nav-link {% if active_tab == tab_key %}active bg-dark text-white{% else %}text-dark{% endif %}"
          hx-get="{% url 'reporting:'|add:tab_key %}?period={{ period }}"
          hx-target="#report-content"
-         hx-push-url="?tab={{ tab_key }}&period={{ period }}"
-         href="?tab={{ tab_key }}&period={{ period }}">
+         href="?tab={{ tab_key }}&period={{ period }}"
+         data-tab="{{ tab_key }}">
         {{ tab_label }}
       </a>
     </li>
@@ -36,4 +28,27 @@
   </div>
 
 </div>
+
+<script>
+  // Update active tab instantly on click
+  document.querySelectorAll('#report-tabs .nav-link').forEach(link => {
+    link.addEventListener('click', function(e) {
+      // Remove active states
+      document.querySelectorAll('#report-tabs .nav-link').forEach(l => {
+        l.classList.remove('active', 'bg-dark', 'text-white');
+        if (!l.classList.contains('text-dark')) l.classList.add('text-dark');
+      });
+      // Add active state to clicked
+      this.classList.remove('text-dark');
+      this.classList.add('active', 'bg-dark', 'text-white');
+      
+      // Update hidden input in the filter form if it exists
+      const tabKey = this.getAttribute('data-tab');
+      const hiddenInput = document.querySelector('input[name="tab"]');
+      if (hiddenInput && tabKey) {
+          hiddenInput.value = tabKey;
+      }
+    });
+  });
+</script>
 {% endblock %}

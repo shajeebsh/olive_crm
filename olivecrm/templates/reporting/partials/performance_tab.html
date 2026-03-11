@@ -1,3 +1,10 @@
+{% include "reporting/partials/filter_bar.html" %}
+<p class="text-muted small px-1 mb-4">
+  <i class="bi bi-info-circle me-1"></i>
+  {{ date_from }} → {{ date_to }} — {{ total_count }}
+  record{{ total_count|pluralize }} found.
+</p>
+
 <!-- Overall Tasks Row -->
 <div class="row g-4 mb-4">
   <div class="col-md-4">
