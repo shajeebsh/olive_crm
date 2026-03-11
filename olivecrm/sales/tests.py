@@ -12,5 +12,5 @@ class SalesViewTest(TestCase):
         self.client.login(username='testuser', password='testpass')
 
     def test_pipeline_kanban_loads(self):
-        response = self.client.get(reverse('pipeline:pipeline_kanban'))
+        response = self.client.get(reverse('sales:pipeline_kanban'))
         self.assertEqual(response.status_code, 200)

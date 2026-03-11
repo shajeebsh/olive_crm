@@ -5,4 +5,5 @@ app_name = 'core'
 
 urlpatterns = [
     path('settings/', views.settings_view, name='index'),
+    path('settings/organization/', views.SettingsOrganizationView.as_view(), name='settings_organization'),
 ]

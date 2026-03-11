@@ -73,7 +73,7 @@ class Command(BaseCommand):
 
         for i in range(8):
             stage_info = random.choice(pipeline.stages)
-            Deal.objects.get_or_create(
+            deal, _ = Deal.objects.get_or_create(
                 name=f'Deal for {random.choice(contacts)} - {i}',
                 defaults={
                     'amount': Decimal(random.randint(5000, 100000)),
@@ -84,6 +84,17 @@ class Command(BaseCommand):
                     'contact': random.choice(contacts),
                     'deal_owner': admin_user,
                     'expected_close_date': timezone.now().date() + timezone.timedelta(days=random.randint(30, 90))
+                }
+            )
+            # Create a task for this deal
+            Task.objects.get_or_create(
+                title=f'Follow up on {deal.name}',
+                defaults={
+                    'due_date': timezone.now() + timezone.timedelta(days=random.randint(1, 7)),
+                    'priority': random.choice(['low', 'medium', 'high']),
+                    'status': 'pending',
+                    'assigned_to': admin_user,
+                    'deal': deal
                 }
             )
 

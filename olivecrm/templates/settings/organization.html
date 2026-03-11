@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Organization Settings{% endblock %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Organization Settings</h1>
+    </div>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-5 text-center text-muted">
+            <div class="mb-4">
+                <i class="bi bi-building-gear fs-1 opacity-25"></i>
+            </div>
+            <h4 class="fw-bold text-dark">Coming Soon</h4>
+            <p class="mb-4">We're finalizing the organization structure and team management features.</p>
+            <a href="{% url 'settings:index' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i> Back to Settings
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
