@@ -46,6 +46,13 @@ class ReportsIndexView(LoginRequiredMixin, TemplateView):
 
 class SalesReportView(LoginRequiredMixin, View):
     def get(self, request):
+        from django.shortcuts import redirect
+        from django.urls import reverse
+        
+        # Redirect non-HTMX requests to full page
+        if not request.headers.get('HX-Request'):
+            return redirect(f"{reverse('reporting:index')}?tab=sales&{request.GET.urlencode()}")
+        
         from olivecrm.sales.models import Deal
 
         form, date_from, date_to = _get_range(request)
@@ -100,6 +107,13 @@ class SalesReportView(LoginRequiredMixin, View):
 
 class RevenueReportView(LoginRequiredMixin, View):
     def get(self, request):
+        from django.shortcuts import redirect
+        from django.urls import reverse
+        
+        # Redirect non-HTMX requests to full page
+        if not request.headers.get('HX-Request'):
+            return redirect(f"{reverse('reporting:index')}?tab=revenue&{request.GET.urlencode()}")
+        
         from olivecrm.invoicing.models import Invoice
 
         form, date_from, date_to = _get_range(request)
@@ -151,6 +165,13 @@ class RevenueReportView(LoginRequiredMixin, View):
 
 class ContactsReportView(LoginRequiredMixin, View):
     def get(self, request):
+        from django.shortcuts import redirect
+        from django.urls import reverse
+        
+        # Redirect non-HTMX requests to full page
+        if not request.headers.get('HX-Request'):
+            return redirect(f"{reverse('reporting:index')}?tab=contacts&{request.GET.urlencode()}")
+        
         from olivecrm.contacts.models import Contact
 
         form, date_from, date_to = _get_range(request)
@@ -194,6 +215,13 @@ class ContactsReportView(LoginRequiredMixin, View):
 
 class PerformanceReportView(LoginRequiredMixin, View):
     def get(self, request):
+        from django.shortcuts import redirect
+        from django.urls import reverse
+        
+        # Redirect non-HTMX requests to full page
+        if not request.headers.get('HX-Request'):
+            return redirect(f"{reverse('reporting:index')}?tab=performance&{request.GET.urlencode()}")
+        
         from olivecrm.sales.models import Deal, Task
 
         form, date_from, date_to = _get_range(request)

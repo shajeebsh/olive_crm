@@ -2,167 +2,865 @@
 
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <title>
-            {% block title %}
-            {% if page.se_title %}{{ page.seo_title }}{% else %}{{ page.title }}{% endif %}
-            {% endblock %}
-            {% block title_suffix %}
-            {% with DEFAULT_TITLE_SUFFIX="OliveCRM" %}
-            {% if title_suffix %}- {{ title_suffix }}{% else %}- {{ DEFAULT_TITLE_SUFFIX }}{% endif %}
-            {% endwith %}
-            {% endblock %}
-        </title>
-        {% if page.search_description %}
-        <meta name="description" content="{{ page.search_description }}" />
-        {% endif %}
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-        {# Global stylesheets #}
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-        <link rel="stylesheet" type="text/css" href="{% static 'css/index.css' %}">
-        <link rel="manifest" href="{% static 'manifest.json' %}">
-
-        {% block extra_css %}
-        {# Override this in templates to add extra stylesheets #}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {% block title %}
+        {% if page.se_title %}{{ page.seo_title }}{% else %}{{ page.title }}{% endif %}
         {% endblock %}
-    </head>
+        {% block title_suffix %}
+        {% with DEFAULT_TITLE_SUFFIX="OliveCRM" %}
+        {% if title_suffix %}- {{ title_suffix }}{% else %}- {{ DEFAULT_TITLE_SUFFIX }}{% endif %}
+        {% endwith %}
+        {% endblock %}
+    </title>
+    {% if page.search_description %}
+    <meta name="description" content="{{ page.search_description }}" />
+    {% endif %}
+    <link rel="icon" type="image/x-code" href="{% static 'images/favicon.ico' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/theme.css' %}?v=1.0">
+    <link rel="stylesheet" href="{% static 'css/olive-theme.css' %}?v=1.0">
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    {% block extra_css %}{% endblock %}
 
-    <body class="{% block body_class %}{% endblock %}" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-        {% wagtailuserbar %}
+    <style>
+        /* ==============================
+           KPI TILE RULING (Inlined for reliability)
+           ============================== */
+        .kpi-card {
+            background: #ffffff !important;
+            border-radius: 8px !important;
+            padding: 0.65rem 0.75rem !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04) !important;
+            border: 1px solid rgba(0,0,0,0.1) !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.6rem !important;
+            transition: transform 0.15s, box-shadow 0.15s;
+            min-height: 68px;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
 
-        <div class="container-fluid">
-            <div class="row">
-                <!-- Sidebar -->
-                <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                    <div class="position-sticky pt-3">
-                        <div class="px-4 mb-4">
-                            <h3 class="h4 fw-bold"><i class="fas fa-leaf me-2"></i>OliveCRM</h3>
-                        </div>
-                        <ul class="nav flex-column">
-                            <li class="nav-item">
-                                <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/">
-                                    <i class="fas fa-tachometer-alt me-2"></i> Dashboard
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if 'contacts' in request.path and 'companies' not in request.path %}active{% endif %}" href="{% url 'contacts:contact_list' %}">
-                                    <i class="fas fa-users me-2"></i> Contacts
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if 'companies' in request.path %}active{% endif %}" href="{% url 'contacts:company_list' %}">
-                                    <i class="fas fa-building me-2"></i> Companies
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if 'sales' in request.path and 'tasks' not in request.path and 'pipeline' not in request.path %}active{% endif %}" href="{% url 'sales:deal_list' %}">
-                                    <i class="fas fa-handshake me-2"></i> Deals
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if 'tasks' in request.path %}active{% endif %}" href="{% url 'sales:task_list' %}">
-                                    <i class="fas fa-tasks me-2"></i> Tasks
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if 'reports' in request.path %}active{% endif %}" href="{% url 'reporting:index' %}">
-                                    <i class="bi bi-bar-chart me-2"></i> Reports
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if 'pipeline' in request.path %}active{% endif %}" href="{% url 'pipeline:pipeline_kanban' %}">
-                                    <i class="bi bi-kanban me-2"></i> Pipeline
-                                </a>
-                            </li>
-                            <hr class="mx-3 border-light opacity-25">
-                            <li class="nav-item">
-                                <a class="nav-link" href="/admin/">
-                                    <i class="fas fa-bullhorn me-2"></i> Marketing
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if 'communications' in request.path %}active{% endif %}" href="{% url 'communication:index' %}">
-                                    <i class="bi bi-chat-dots me-2"></i> Communications
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if 'automation' in request.path %}active{% endif %}" href="{% url 'automation:index' %}">
-                                    <i class="bi bi-lightning me-2"></i> Automation
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if 'invoicing' in request.path %}active{% endif %}" href="{% url 'invoicing:list' %}">
-                                    <i class="fas fa-file-invoice-dollar me-2"></i> Invoices
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link {% if 'inventory' in request.path %}active{% endif %}" href="{% url 'inventory:index' %}">
-                                    <i class="bi bi-box-seam me-2"></i> Inventory
-                                </a>
-                            </li>
-                            <hr class="mx-3 border-light opacity-25">
-                            <li class="nav-item">
-                                <a class="nav-link {% if 'settings' in request.path %}active{% endif %}" href="{% url 'settings:index' %}">
-                                    <i class="bi bi-gear me-2"></i> Settings
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--kpi-accent, #4a6b3a);
+        }
 
-                <!-- Main Content -->
-                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                    <!-- Top Navbar -->
-                    <nav class="navbar navbar-expand-lg mb-4 mt-2 rounded">
-                        <div class="container-fluid">
-                            <form class="d-flex w-50" role="search" method="get">
-                                <div class="input-group">
-                                    <span class="input-group-text bg-light border-0"><i class="fas fa-search text-muted"></i></span>
-                                    <input name="q" class="form-control bg-light border-0" type="search" placeholder="Search..." aria-label="Search" value="{{ request.GET.q|default:'' }}">
-                                </div>
-                            </form>
-                            <div class="ms-auto d-flex align-items-center">
-                                <button class="btn btn-link text-dark position-relative me-3">
-                                    <i class="fas fa-bell"></i>
-                                    <span class="position-absolute top-25 start-75 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-                                </button>
-                                <div class="dropdown">
-                                    <a href="#" class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" id="dropdownUser1" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <img src="https://ui-avatars.com/api/?name={{ request.user.get_full_name|urlencode }}&background=3d5a45&color=fff" alt="" width="32" height="32" class="rounded-circle me-2">
-                                        <strong>{{ request.user.username }}</strong>
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userDropdown">
-                                        <li><a class="dropdown-item" href="{% url 'profile' %}">Profile</a></li>
-                                        <li><a class="dropdown-item" href="{% url 'settings:index' %}">Settings</a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li>
-                                            <form action="{% url 'logout' %}" method="post">
-                                                {% csrf_token %}
-                                                <button type="submit" class="dropdown-item">Sign out</button>
-                                            </form>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </nav>
+        .kpi-card:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
 
-                    {% block content %}{% endblock %}
-                </main>
+        .kpi-card.kpi-revenue { --kpi-accent: #28a745; }
+        .kpi-card.kpi-crm { --kpi-accent: #e65100; }
+        .kpi-card.kpi-blue { --kpi-accent: #1565c0; }
+        .kpi-card.kpi-orange { --kpi-accent: #e65100; }
+        .kpi-card.kpi-green { --kpi-accent: #2e7d32; }
+        .kpi-card.kpi-purple { --kpi-accent: #7b1fa2; }
+        .kpi-card.kpi-pink { --kpi-accent: #c2185b; }
+        .kpi-card.kpi-teal { --kpi-accent: #00897b; }
+        .kpi-card.kpi-amber { --kpi-accent: #f57c00; }
+        .kpi-card.kpi-red { --kpi-accent: #c00000; }
+
+        .kpi-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+            background: var(--icon-bg, #f5f5f5);
+            color: var(--icon-color, #666);
+        }
+
+        .kpi-revenue .kpi-icon { background: #e8f5e9; color: #2e7d32; }
+        .kpi-crm .kpi-icon { background: #fff3e0; color: #e65100; }
+        .kpi-blue .kpi-icon { background: #e3f2fd; color: #1565c0; }
+        .kpi-orange .kpi-icon { background: #fff3e0; color: #e65100; }
+        .kpi-green .kpi-icon { background: #e8f5e9; color: #2e7d32; }
+        .kpi-purple .kpi-icon { background: #f3e5f5; color: #7b1fa2; }
+        .kpi-pink .kpi-icon { background: #fce4ec; color: #c2185b; }
+        .kpi-teal .kpi-icon { background: #e0f2f1; color: #00897b; }
+        .kpi-amber .kpi-icon { background: #fff8e1; color: #f57c00; }
+        .kpi-red .kpi-icon { background: #fce4ec; color: #c00000; }
+
+        .kpi-content {
+            display: flex !important;
+            flex-direction: column;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .kpi-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6c757d;
+            line-height: 1.3;
+        }
+
+        .kpi-value {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #1f2937;
+            line-height: 1.2;
+            margin: 1px 0;
+        }
+
+        .kpi-change, .kpi-meta { font-size: 0.7rem; font-weight: 500; }
+        .kpi-change-up   { color: #16a34a; }
+        .kpi-change-down { color: #dc2626; }
+        .kpi-meta { color: #6b7280; }
+
+        /* ---- Base Reset ---- */
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 14px;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        body.user-authenticated {
+            padding-top: 104px;
+        }
+
+        /* ---- App Shell Header Wrapper ---- */
+        .app-shell-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1040;
+        }
+
+        /* ==============================
+           ROW 1: Utility / Identity Bar
+           ============================== */
+        .app-header-utility {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            height: 56px;
+            background: #ffffff;
+            border-bottom: 1px solid #dee2e6;
+            padding: 0 1.5rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        .app-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-shrink: 0;
+            text-decoration: none !important;
+            color: #2d4a1f !important;
+        }
+
+        .app-brand-icon {
+            font-size: 1.4rem;
+            line-height: 1;
+        }
+
+        .app-brand-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: #2d4a1f;
+            white-space: nowrap;
+        }
+
+        .app-company-badge {
+            display: inline-flex;
+            align-items: center;
+            margin-left: 0.75rem;
+            padding: 0.2rem 0.65rem;
+            font-size: 0.78rem;
+            color: #5a6872;
+            background: #f0f4f0;
+            border-radius: 20px;
+            border: 1px solid #d6e0d6;
+            white-space: nowrap;
+        }
+
+        .app-header-search {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 0 2rem;
+            max-width: 560px;
+            margin: 0 auto;
+        }
+
+        .app-search-wrap {
+            position: relative;
+            width: 100%;
+        }
+
+        .app-search-wrap .bi-search {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 0.85rem;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .app-search-input {
+            display: block;
+            width: 100%;
+            height: 36px;
+            padding: 0 1rem 0 2.25rem;
+            font-size: 0.85rem;
+            font-family: inherit;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f9fafb;
+            color: #1f2937;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            outline: none;
+        }
+
+        .app-search-input::placeholder { color: #9ca3af; }
+
+        .app-search-input:focus {
+            border-color: #4a6b3a;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(74,107,58,0.15);
+        }
+
+        .app-header-user {
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .app-user-toggle {
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.5rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none !important;
+            color: #1f2937 !important;
+            background: transparent;
+            border: none;
+            transition: background 0.15s;
+        }
+
+        .app-user-toggle:hover { background: #f3f4f6; }
+
+        .app-user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4a6b3a, #3d5630);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .app-user-name {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #1f2937;
+            white-space: nowrap;
+        }
+
+        .app-user-toggle .bi-chevron-down {
+            font-size: 0.7rem;
+            color: #9ca3af;
+        }
+
+        .app-user-menu {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            min-width: 240px;
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            z-index: 1090;
+            display: none;
+            overflow: hidden;
+        }
+
+        .app-user-menu.open { display: block; }
+
+        .app-user-menu-header {
+            padding: 0.9rem 1rem;
+            background: linear-gradient(135deg, #f9fafb 0%, #fff 100%);
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .app-user-menu-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #1f2937;
+        }
+
+        .app-user-menu-email {
+            font-size: 0.78rem;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+
+        .app-user-menu a,
+        .app-user-menu button {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.65rem 1rem;
+            font-size: 0.875rem;
+            color: #1f2937;
+            text-decoration: none;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            transition: background 0.12s;
+        }
+
+        .app-user-menu a:hover,
+        .app-user-menu button:hover { background: #f9fafb; }
+
+        .app-user-menu button { color: #dc3545; }
+        .app-user-menu button:hover { color: #b91c1c; }
+
+        /* ==============================
+           ROW 2: Module Navigation Bar
+           ============================== */
+        .app-header-nav {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            height: 48px;
+            background: linear-gradient(135deg, #003566 0%, #002244 100%);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            padding: 0 0.75rem;
+            position: relative;
+            overflow: visible;
+        }
+
+        .app-mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.9);
+            font-size: 1.4rem;
+            padding: 0.3rem 0.5rem;
+            cursor: pointer;
+            border-radius: 6px;
+            margin-right: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .app-mobile-toggle:hover { background: rgba(255,255,255,0.12); }
+
+        .app-nav-scroll {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            flex: 1;
+            gap: 2px;
+            overflow: visible;
+        }
+
+        .app-nav-link {
+            display: inline-flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            gap: 0.35rem;
+            padding: 0.45rem 0.75rem;
+            color: rgba(255,255,255,0.88) !important;
+            text-decoration: none !important;
+            border-radius: 6px;
+            font-size: 0.83rem;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: background 0.15s, color 0.15s;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-family: inherit;
+        }
+
+        .app-nav-link:hover,
+        .app-nav-link:focus {
+            color: #fff !important;
+            background: rgba(255,255,255,0.15) !important;
+            outline: none;
+        }
+
+        .app-nav-link.active {
+            color: #fff !important;
+            background: rgba(255,255,255,0.22) !important;
+            font-weight: 600;
+        }
+
+        .app-nav-link i { font-size: 0.95rem; opacity: 0.9; }
+
+        .app-nav-link .app-nav-chevron {
+            font-size: 0.65rem;
+            opacity: 0.7;
+            margin-left: 1px;
+        }
+
+        .app-nav-dropdown {
+            position: relative;
+        }
+
+        .app-nav-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 50%;
+            transform: translateX(-50%);
+            min-width: 220px;
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            z-index: 1060;
+            padding: 0.4rem 0;
+            animation: menuFadeIn 0.15s ease;
+        }
+
+        .app-nav-dropdown-menu::before {
+            content: "";
+            position: absolute;
+            top: -12px;
+            left: 0;
+            right: 0;
+            height: 12px;
+            background: transparent;
+        }
+
+        @keyframes menuFadeIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+            to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        .app-nav-dropdown-menu.open { display: block; }
+
+        .app-nav-dropdown-menu a {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.55rem 1rem;
+            font-size: 0.85rem;
+            color: #1f2937 !important;
+            text-decoration: none !important;
+            border-left: 3px solid transparent;
+            transition: all 0.12s;
+        }
+
+        .app-nav-dropdown-menu a:hover {
+            background: #f9fafb;
+            color: #4a6b3a !important;
+            border-left-color: #4a6b3a;
+        }
+
+        .app-nav-dropdown-divider {
+            height: 1px;
+            background: #f0f0f0;
+            margin: 0.3rem 0;
+        }
+
+        .app-nav-goto {
+            font-weight: 600;
+            color: #4a6b3a !important;
+        }
+
+        .app-nav-goto:hover { background: #f0f6f0 !important; }
+
+        /* ==============================
+           MAIN CONTENT
+           ============================== */
+        .app-main-content {
+            padding: 0.85rem 1.35rem 1rem;
+            min-height: calc(100vh - 104px);
+        }
+
+        .app-main-content.dashboard-page {
+            padding: 0.5rem 1.35rem 0.85rem;
+        }
+
+        /* ==============================
+           RESPONSIVE
+           ============================== */
+        @media (max-width: 1100px) {
+            .app-nav-link span:not(.badge) { display: none; }
+            .app-nav-link i { font-size: 1.05rem; }
+            .app-nav-link { padding: 0.45rem 0.6rem; }
+        }
+
+        @media (max-width: 768px) {
+            .app-company-badge { display: none; }
+            .app-header-search { padding: 0 0.75rem; }
+            .app-mobile-toggle { display: flex; }
+
+            .app-nav-scroll {
+                display: none !important;
+                position: fixed;
+                top: 104px;
+                left: 0;
+                right: 0;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                background: #2d4a1f;
+                padding: 0.75rem;
+                gap: 2px;
+                max-height: calc(100vh - 104px);
+                overflow-y: auto;
+                z-index: 1050;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            }
+
+            .app-nav-scroll.mobile-open { display: flex !important; }
+
+            .app-nav-link {
+                width: 100%;
+                padding: 0.65rem 0.9rem;
+                font-size: 0.9rem;
+            }
+
+            .app-nav-link span { display: inline !important; }
+
+            .app-nav-dropdown-menu {
+                position: static;
+                transform: none;
+                left: auto;
+                box-shadow: none;
+                background: rgba(255,255,255,0.08);
+                border: none;
+                border-radius: 8px;
+                margin: 4px 0 4px 1rem;
+                padding: 0.3rem;
+            }
+
+            .app-nav-dropdown-menu a {
+                color: rgba(255,255,255,0.88) !important;
+                border-left: none !important;
+                border-radius: 5px;
+                padding: 0.5rem 0.75rem;
+            }
+
+            .app-nav-dropdown-menu a:hover {
+                background: rgba(255,255,255,0.12) !important;
+                color: #fff !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .app-header-utility { padding: 0 0.75rem; }
+            .app-brand-name { display: none; }
+            .app-user-name { display: none; }
+            .app-main-content { padding: 0.8rem 0.85rem 1rem; }
+            .app-main-content.dashboard-page { padding: 0.45rem 0.85rem 0.8rem; }
+        }
+    </style>
+</head>
+<body{% if user.is_authenticated %} class="user-authenticated"{% endif %} hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    {% wagtailuserbar %}
+
+    {% if user.is_authenticated %}
+    <div class="app-shell-header">
+
+        <div class="app-header-utility">
+
+            <a href="{% url 'dashboard' %}" class="app-brand">
+                <span class="app-brand-icon"><i class="fas fa-leaf"></i></span>
+                <span class="app-brand-name">OliveCRM</span>
+            </a>
+
+            <div class="app-header-search">
+                <div class="app-search-wrap">
+                    <i class="bi bi-search"></i>
+                    <input
+                        type="search"
+                        id="global-search"
+                        name="q"
+                        placeholder="Search modules, records…"
+                        aria-label="Global search"
+                        class="app-search-input"
+                        hx-get="{% url 'search' %}"
+                        hx-trigger="keyup changed delay:500ms"
+                        hx-target="#search-results"
+                        autocomplete="off"
+                    >
+                    <div id="search-results" style="position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:1080;"></div>
+                </div>
             </div>
+
+            <div class="app-header-user">
+                <button type="button" class="app-user-toggle" id="userMenuToggle" aria-expanded="false" aria-haspopup="true">
+                    <div class="app-user-avatar">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <span class="app-user-name">{{ user.get_full_name|default:user.username }}</span>
+                    <i class="bi bi-chevron-down"></i>
+                </button>
+                <div class="app-user-menu" id="userDropdownMenu" role="menu">
+                    <div class="app-user-menu-header">
+                        <div class="app-user-menu-name">{{ user.get_full_name|default:user.username }}</div>
+                        <div class="app-user-menu-email">{{ user.email }}</div>
+                    </div>
+                    <a href="{% url 'profile' %}"><i class="bi bi-person"></i> Profile</a>
+                    <a href="{% url 'core:index' %}"><i class="bi bi-gear"></i> Settings</a>
+                    <form action="{% url 'logout' %}" method="post" style="margin:0;padding:0;">
+                        {% csrf_token %}
+                        <button type="submit"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                    </form>
+                </div>
+            </div>
+
         </div>
 
-        {# Global javascript #}
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="https://unpkg.com/htmx.org@1.9.4"></script>
-        <script type="text/javascript" src="{% static 'js/olivecrm.js' %}"></script>
+        <nav class="app-header-nav" role="navigation" aria-label="Module navigation">
 
-        {% block extra_js %}
-        {# Override this in templates to add extra javascript #}
-        {% endblock %}
-    </body>
+            <button class="app-mobile-toggle" id="mobileNavToggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
+                <i class="bi bi-list"></i>
+            </button>
+
+            <div class="app-nav-scroll" id="appNavScroll">
+
+                <a class="app-nav-link" href="{% url 'dashboard' %}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <div class="app-nav-dropdown" data-dropdown>
+                    <button type="button"
+                            class="app-nav-link app-nav-link-trigger"
+                            data-dropdown-trigger
+                            aria-haspopup="true"
+                            aria-expanded="false">
+                        <i class="bi bi-people"></i>
+                        <span>CRM</span>
+                        <i class="bi bi-chevron-down app-nav-chevron"></i>
+                    </button>
+                    <div class="app-nav-dropdown-menu" role="menu">
+                        <a class="app-nav-goto" href="{% url 'contacts:contact_list' %}">
+                            <i class="bi bi-arrow-right-circle"></i> Go to CRM
+                        </a>
+                        <div class="app-nav-dropdown-divider"></div>
+                        <a href="{% url 'contacts:contact_list' %}"><i class="bi bi-person-lines-fill"></i> Contacts</a>
+                        <a href="{% url 'contacts:company_list' %}"><i class="bi bi-building"></i> Companies</a>
+                    </div>
+                </div>
+
+                <div class="app-nav-dropdown" data-dropdown>
+                    <button type="button"
+                            class="app-nav-link app-nav-link-trigger"
+                            data-dropdown-trigger
+                            aria-haspopup="true"
+                            aria-expanded="false">
+                        <i class="bi bi-cash-stack"></i>
+                        <span>Sales</span>
+                        <i class="bi bi-chevron-down app-nav-chevron"></i>
+                    </button>
+                    <div class="app-nav-dropdown-menu" role="menu">
+                        <a class="app-nav-goto" href="{% url 'sales:deal_list' %}">
+                            <i class="bi bi-arrow-right-circle"></i> Go to Sales
+                        </a>
+                        <div class="app-nav-dropdown-divider"></div>
+                        <a href="{% url 'sales:deal_list' %}"><i class="bi bi-hand-thumbs-up"></i> Deals</a>
+                        <a href="{% url 'sales:task_list' %}"><i class="bi bi-list-task"></i> Tasks</a>
+                        <a href="{% url 'sales:pipeline_kanban' %}"><i class="bi bi-kanban"></i> Pipeline</a>
+                    </div>
+                </div>
+
+                <a class="app-nav-link" href="{% url 'reporting:index' %}">
+                    <i class="bi bi-bar-chart"></i>
+                    <span>Reports</span>
+                </a>
+
+                <div class="app-nav-dropdown" data-dropdown>
+                    <button type="button"
+                            class="app-nav-link app-nav-link-trigger"
+                            data-dropdown-trigger
+                            aria-haspopup="true"
+                            aria-expanded="false">
+                        <i class="bi bi-tools"></i>
+                        <span>Operations</span>
+                        <i class="bi bi-chevron-down app-nav-chevron"></i>
+                    </button>
+                    <div class="app-nav-dropdown-menu" role="menu">
+                        <a href="{% url 'invoicing:list' %}"><i class="bi bi-receipt"></i> Invoices</a>
+                        <a href="{% url 'inventory:index' %}"><i class="bi bi-box-seam"></i> Inventory</a>
+                        <a href="{% url 'communication:index' %}"><i class="bi bi-chat-dots"></i> Communications</a>
+                        <a href="{% url 'automation:index' %}"><i class="bi bi-lightning"></i> Automation</a>
+                    </div>
+                </div>
+
+                <a class="app-nav-link" href="{% url 'core:index' %}">
+                    <i class="bi bi-gear"></i>
+                    <span>Settings</span>
+                </a>
+
+            </div>
+
+        </nav>
+
+    </div>
+    {% endif %}
+
+    <main class="app-main-content{% block content_class %}{% endblock %}">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.4"></script>
+    <script src="{% static 'js/navigation.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/olivecrm.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+
+    <script>
+    (function() {
+        var userToggle = document.getElementById('userMenuToggle');
+        var userMenu   = document.getElementById('userDropdownMenu');
+
+        if (userToggle && userMenu) {
+            userToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var open = userMenu.classList.toggle('open');
+                userToggle.setAttribute('aria-expanded', open);
+            });
+        }
+
+        document.addEventListener('click', function(e) {
+            if (userMenu && userMenu.classList.contains('open')) {
+                if (!userMenu.contains(e.target) && !userToggle.contains(e.target)) {
+                    userMenu.classList.remove('open');
+                    userToggle && userToggle.setAttribute('aria-expanded', 'false');
+                }
+            }
+        });
+
+        var dropdowns = document.querySelectorAll('[data-dropdown]');
+        function closeAllNavDropdowns(exceptEl) {
+            document.querySelectorAll('.app-nav-dropdown-menu.open').forEach(function(m) {
+                if (m === exceptEl) return;
+                m.classList.remove('open');
+                var t = m.parentElement.querySelector('[data-dropdown-trigger]');
+                if (t) t.setAttribute('aria-expanded', 'false');
+            });
+        }
+
+        dropdowns.forEach(function(dd, idx) {
+            var trigger = dd.querySelector('[data-dropdown-trigger]');
+            var menu    = dd.querySelector('.app-nav-dropdown-menu');
+            if (!trigger || !menu) return;
+
+            trigger.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var isOpen = menu.classList.contains('open');
+
+                if (isOpen) {
+                    menu.classList.remove('open');
+                    trigger.setAttribute('aria-expanded', 'false');
+                } else {
+                    closeAllNavDropdowns(null);
+                    menu.classList.add('open');
+                    trigger.setAttribute('aria-expanded', 'true');
+                }
+            });
+        });
+
+        document.addEventListener('click', function(e) {
+            var insideAny = false;
+            dropdowns.forEach(function(dd) {
+                if (dd.contains(e.target)) insideAny = true;
+            });
+            if (!insideAny) closeAllNavDropdowns(null);
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.app-nav-dropdown-menu.open').forEach(function(m) {
+                    m.classList.remove('open');
+                });
+                if (userMenu) userMenu.classList.remove('open');
+            }
+        });
+
+        var mobileToggle = document.getElementById('mobileNavToggle');
+        var navScroll    = document.getElementById('appNavScroll');
+
+        if (mobileToggle && navScroll) {
+            mobileToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var open = navScroll.classList.toggle('mobile-open');
+                mobileToggle.setAttribute('aria-expanded', open);
+                var icon = mobileToggle.querySelector('i');
+                if (icon) {
+                    icon.className = open ? 'bi bi-x-lg' : 'bi bi-list';
+                }
+            });
+        }
+
+        document.addEventListener('click', function(e) {
+            if (navScroll && navScroll.classList.contains('mobile-open')) {
+                if (!navScroll.contains(e.target) && mobileToggle && !mobileToggle.contains(e.target)) {
+                    navScroll.classList.remove('mobile-open');
+                    if (mobileToggle) {
+                        mobileToggle.setAttribute('aria-expanded', 'false');
+                        var icon = mobileToggle.querySelector('i');
+                        if (icon) icon.className = 'bi bi-list';
+                    }
+                }
+            }
+        });
+
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 768 && navScroll) {
+                navScroll.classList.remove('mobile-open');
+                if (mobileToggle) {
+                    mobileToggle.setAttribute('aria-expanded', 'false');
+                    var icon = mobileToggle.querySelector('i');
+                    if (icon) icon.className = 'bi bi-list';
+                }
+            }
+        });
+
+        var path = window.location.pathname;
+        document.querySelectorAll('.app-nav-link').forEach(function(link) {
+            var href = link.getAttribute('href');
+            if (href && href !== '#' && path.startsWith(href) && href.length > 1) {
+                link.classList.add('active');
+            }
+        });
+    })();
+    </script>
+</body>
 </html>

@@ -66,7 +66,7 @@
   <div class="card-body">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h6 class="fw-semibold mb-0">Recent Deals</h6>
-      <a href="{% url 'reporting:export_sales' %}?period={{ period }}" class="btn btn-outline-secondary btn-sm">
+      <a href="{% url 'reporting:export_sales' %}?period={{ period }}&date_from={{ date_from|date:'Y-m-d' }}&date_to={{ date_to|date:'Y-m-d' }}" class="btn btn-outline-secondary btn-sm">
         <i class="bi bi-download me-1"></i> Export CSV
       </a>
     </div>
@@ -93,7 +93,7 @@
 </div>
 
 <!-- Chart.js initialization -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- Chart.js already loaded in base.html -->
 <script>
   // Monthly Deals Line Chart
   new Chart(document.getElementById('monthlyDealsChart'), {
