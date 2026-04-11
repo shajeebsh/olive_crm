@@ -214,6 +214,10 @@ python manage.py migrate
 
 ## 8. Related Documentation
 
+- [Architecture Overview](docs/architecture.md) - Detailed architectural patterns
+- [Setup and Installation](docs/setup.md) - Getting started guide
+- [Testing and QA](docs/testing.md) - Automated and E2E testing
+- [REST API Documentation](docs/api.md) - API endpoints and usage
 - `docs/ai_task.md` - Active task tracking
 - `olivecrm/static/css/theme.css` - Theme variables
 - `olivecrm/static/css/olive-theme.css` - Component styles
