@@ -24,6 +24,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/theme.css' %}?v=1.0">
     <link rel="stylesheet" href="{% static 'css/olive-theme.css' %}?v=1.0">
     <link rel="stylesheet" href="{% static 'css/index.css' %}">
     <link rel="manifest" href="{% static 'manifest.json' %}">
@@ -361,7 +362,7 @@
             flex-direction: row !important;
             align-items: center !important;
             height: 48px;
-            background: linear-gradient(135deg, #4a6b3a 0%, #2d4a1f 100%);
+            background: linear-gradient(135deg, #003566 0%, #002244 100%);
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             padding: 0 0.75rem;
             position: relative;
@@ -697,7 +698,7 @@
                     </div>
                 </div>
 
-                <a class="app-nav-link" href="{% url 'reporting:sales' %}">
+                <a class="app-nav-link" href="{% url 'reporting:index' %}">
                     <i class="bi bi-bar-chart"></i>
                     <span>Reports</span>
                 </a>
